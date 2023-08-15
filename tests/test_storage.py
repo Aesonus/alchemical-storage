@@ -55,13 +55,18 @@ class TestDatabaseStorageWithSinglePk:
     @pytest.fixture
     def existing_models(self):
         """Create a dummy model"""
-        return [models.Model(attr=1, attr2=1, attr3="test1"), models.Model(attr=3, attr2=3, attr3="test3")]
+        return [
+            models.Model(attr=1, attr2=1, attr3="test1"),
+            models.Model(attr=3, attr2=3, attr3="test3")
+        ]
 
     @pytest.fixture
     def model_storage(self, session, model_schema, entity_filters, entity_order_by):
         """Create DatabaseStorage instance for a model with single primary key"""
         return DatabaseStorage(
-            session, models.Model, model_schema, primary_key="attr", filter_=entity_filters, order_by_mapper=entity_order_by)
+            session, models.Model, model_schema, primary_key="attr",
+            filter_=entity_filters, order_by_mapper=entity_order_by
+        )
 
     def test_model_storage_get_raises_not_found_error_if_model_not_found(
             self, model_storage: DatabaseStorage[models.Model]):
