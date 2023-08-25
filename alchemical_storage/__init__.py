@@ -1,2 +1,2 @@
-"""alchemical_storage package."""
+"""The **alchemical_storage** package."""
 __version__ = '0.1.0'

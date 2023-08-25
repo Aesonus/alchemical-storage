@@ -93,7 +93,18 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
 
 class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
-    """SQLAlchemy model storage in sql database"""
+    """
+    SQLAlchemy model storage in sql database
+
+    Args:
+        session (Session): The SQLAlchemy session to use for database operations
+        entity (Type[AlchemyModel]): The SQLAlchemy model to use for database operations
+        storage_schema (SQLAlchemySchema): The marshmallow schema to use for serialization
+        primary_key (str|Sequence[str]): The primary key of the entity (Optional, defaults to
+            "slug")
+        statement_visitors (Optional[list[StatementVisitor]]): List of statement visitors to apply
+            to all statements
+    """
     session: Session
     entity: Type[AlchemyModel]
     storage_schema: SQLAlchemySchema
@@ -189,11 +200,12 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
 
     @_convert_identity
     def __contains__(self, identity: Any) -> bool:
-        return self.session.execute(
+        if result := self.session.execute(
             sql.select(sql.func.count(  # pylint: disable=not-callable
                 getattr(self.entity, self._attr[0])
             )).where(
-                # type: ignore
                 *(getattr(self.entity, _attr) == id for _attr, id in zip(self._attr, identity))
             )
-        ).scalar() > 0
+        ).scalar():
+            return result > 0
+        return False

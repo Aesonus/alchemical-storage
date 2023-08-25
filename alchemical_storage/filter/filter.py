@@ -1,4 +1,7 @@
-"""A filter mapper for storage queries"""
+"""
+Build upon the ``alchemical_storage.visitor`` module to create a classes that can be used to map
+filters and order_by attributes to sqlalchemy statements.
+"""
 
 import functools
 import importlib
@@ -8,37 +11,36 @@ from typing import Any, Callable, Generator
 from sqlalchemy.sql.expression import desc
 
 from alchemical_storage.filter.exc import OrderByException
-from alchemical_storage.visitor import StatementVisitor
+from alchemical_storage.visitor import StatementVisitor, T
 
 # pylint: disable=too-few-public-methods
 
 
 class FilterMap(StatementVisitor):
     """
-    Usage
-    ------
-    ```
-    self.filter_mapper = FilterMap({
-            "opponent_type": 'Opponent.type',
-            "starting_at": ('Game.played_on', operator.ge,),
-            "ending_at": ('Game.played_on', operator.le,),
-        }, 'your_models_module.models')
-    ```
+    Initialize the filter mapper
 
-    + May also use sqlalchemy's `sqlalchemy.sql.operators` for the operator.
-    + User-defined operator functions are also allowed.
-    + The `your_models_module.models` is the module where the models are defined.
+    Args:
+        filters (dict[str, Any]): A dictionary of filters
+        import_from (str): The module to import Model classes from
+
+    Example:
+        ::
+
+            filter_visitor = FilterMap({
+                "game_type": 'Game.type',
+                "starting_at": ('Game.played_on', operator.ge,),
+                "ending_at": ('Game.played_on', operator.le,),
+            }, 'your_models_module.models')
+
+
+    Note:
+        + May use sqlalchemy's `sqlalchemy.sql.operators` for the operator.
+        + The `your_models_module.models` is the module where the models are defined.
     """
     filters: dict[str, Callable]
 
     def __init__(self, filters: dict[str, Any], import_from: str) -> None:
-        """
-        Initialize the filter mapper
-
-        Args:
-            filters (dict[str, Any]): A dictionary of filters
-            import_from (str): The module to import Model classes from
-        """
         self.__module = importlib.import_module(import_from)
         self.filters = {}
         for filter_, exprs in filters.items():
@@ -55,16 +57,22 @@ class FilterMap(StatementVisitor):
                     get_by = getattr(get_by, child)
             self.filters[filter_] = functools.partial(op_, get_by)
 
-    def visit_statement(self, statement, params: dict[str, Any]):
+    def visit_statement(self, statement: T, params: dict[str, Any]):
         """
-        Apply filters to an sqlalchemy query. Ignores unknown filters.
+        Apply filters to an sqlalchemy query. Each key in ``params`` corresponds to a filter
+        in ``self.filters``. If the key is not in ``self.filters``, it is ignored.
 
         Args:
-            statement (Select): The sqlalchemy statement to apply filters to
+            statement (T): The sqlalchemy statement to apply filters to
             params (dict[str, Any]): The filters to apply
 
         Returns:
-            Select: The filtered sqlalchemy statement
+            T: The filtered sqlalchemy statement
+
+        Note:
+            Type "T" is a generic type that can be either a ``sqlalchemy.sql.Select`` or
+            ``sqlalchemy.sql.ColumnElement``. This is because the visitor can be used
+            on both select statements and column elements.
         """
         return statement.where(*self._generate_whereclauses(params))
 
@@ -80,9 +88,16 @@ class OrderByMap(StatementVisitor):
 
     Args:
         order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
-        the key is the attribute name and the value is the column or label to order by.
+            the key is the attribute name and the value is the column or label to order by.
         import_from (str): The module to import Model classes from
 
+    Example:
+        ::
+
+            order_by_visitor = OrderByMap({
+                "game_type": 'Game.type',
+                "player_on": 'Game.played_on',
+            }, 'your_models_module.models')
     """
     order_by_attributes: dict[str, Any]
 
@@ -103,11 +118,11 @@ class OrderByMap(StatementVisitor):
         Apply order_by to an sqlalchemy query. Ignores order_by if not given in params.
 
         Args:
-            statement (Select): The sqlalchemy statement to apply order_by to
+            statement (T): The sqlalchemy statement to apply order_by to
             params (dict[str, Any]): The filters to apply
 
         Returns:
-            (Select): The order_by sqlalchemy statement
+            (T): The order_by sqlalchemy statement
         """
         if 'order_by' not in params:
             return statement
