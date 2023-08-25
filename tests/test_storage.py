@@ -171,6 +171,7 @@ class TestDatabaseStorageWithSinglePk:
         ({}, 2),
         ({"attr3_like": "%notfound%"}, 0),
         ({"attr3_like": "%test%"}, 2),
+        ({'related_attr': 1}, 1),
     ])
     def test_model_storage_count_index_returns_count_of_models(
             self, model_storage: DatabaseStorage[models.Model], filters, expected_count):
