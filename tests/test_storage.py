@@ -65,7 +65,7 @@ class TestDatabaseStorageWithSinglePk:
         """Create DatabaseStorage instance for a model with single primary key"""
         return DatabaseStorage(
             session, models.Model, model_schema, primary_key="attr",
-            filter_=entity_filters, order_by_mapper=entity_order_by
+            statement_visitors=[entity_filters, entity_order_by]
         )
 
     def test_model_storage_get_raises_not_found_error_if_model_not_found(
@@ -207,8 +207,9 @@ class TestDatabaseStorageWithCompositePk:
                                models.CompositePkModel,
                                model_schema,
                                primary_key=("attr", "attr2"),
-                               filter_=entity_filters,
-                               order_by_mapper=entity_order_by)
+                               statement_visitors=[
+                                   entity_filters, entity_order_by]
+                               )
 
     @pytest.fixture
     def model_schema(self, session):

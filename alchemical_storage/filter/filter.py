@@ -8,11 +8,12 @@ from typing import Any, Callable, Generator
 from sqlalchemy.sql.expression import desc
 
 from alchemical_storage.filter.exc import OrderByException
+from alchemical_storage.visitor import StatementVisitor
 
 # pylint: disable=too-few-public-methods
 
 
-class FilterMap:
+class FilterMap(StatementVisitor):
     """
     Usage
     ------
@@ -23,6 +24,7 @@ class FilterMap:
             "ending_at": ('Game.played_on', operator.le,),
         }, 'your_models_module.models')
     ```
+
     + May also use sqlalchemy's `sqlalchemy.sql.operators` for the operator.
     + User-defined operator functions are also allowed.
     + The `your_models_module.models` is the module where the models are defined.
@@ -53,44 +55,34 @@ class FilterMap:
                     get_by = getattr(get_by, child)
             self.filters[filter_] = functools.partial(op_, get_by)
 
-    def __call__(self, given_filters: dict[str, Any]) -> Generator[Any, None, None]:
+    def visit_statement(self, statement, params: dict[str, Any]):
         """
-        Generates filters for an sqlalchemy query. Ignores unknown filters.
+        Apply filters to an sqlalchemy query. Ignores unknown filters.
 
         Args:
-            given_filters (dict[str, Any]): The filters to apply
+            statement (Select): The sqlalchemy statement to apply filters to
+            params (dict[str, Any]): The filters to apply
 
-        Yields:
-            Generator[Any, None, None]: The filtered filters
+        Returns:
+            Select: The filtered sqlalchemy statement
         """
+        return statement.where(*self._generate_whereclauses(params))
+
+    def _generate_whereclauses(self, given_filters: dict[str, Any]) -> Generator[Any, None, None]:
         for attr, filtered_by in given_filters.items():
             if attr in self.filters:
                 yield self.filters[attr](filtered_by)
 
 
-class OrderByMap:
+class OrderByMap(StatementVisitor):
     """
-    Usage
-    ------
-    ```
-    order_by_mapper = OrderByMap({
-        "opponent_type": 'Opponent.type',  # Order by a column
-        "wins": 'wins', # Order by a label
-        }, 'your_models_module.models')
+    A mapper to convert order_by attributes to sqlalchemy order_by expressions
 
-    # Generate sql
-    sql.select(
-        Opponent.id, sql.func.count(Game.winner_id == Opponent.id).label('wins')
-    ).order_by(*order_by_mapper('opponent_type,-wins'))
-    ```
-    Will generate sql like:
-    `
-    SELECT opponents.id, COUNT(games.winner_id = opponents.id) AS wins FROM
-    opponents ORDER BY opponents.type ASC, wins DESC
-    `
+    Args:
+        order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
+        the key is the attribute name and the value is the column or label to order by.
+        import_from (str): The module to import Model classes from
 
-    + The `your_models_module.models` is the module where the models are defined.
-    + The order_by column may also be a label.
     """
     order_by_attributes: dict[str, Any]
 
@@ -106,24 +98,22 @@ class OrderByMap:
 
             self.order_by_attributes[attr] = order_by
 
-    def __call__(self, order_by: str):
+    def visit_statement(self, statement, params: dict[str, Any]):
         """
-        Generates order_by for an sqlalchemy query. Ignores unknown order_by.
-
-        Example:
-        ```
-            sql = select(Opponent).order_by(*self.order_by_mapper('type,-wins'))
-        ```
-        will generate sql like: `SELECT * FROM opponents ORDER BY type ASC, wins DESC`
+        Apply order_by to an sqlalchemy query. Ignores order_by if not given in params.
 
         Args:
-            order_by (str): The order_by to apply. May be prefixed with `-` to indicate
-            descending order.
+            statement (Select): The sqlalchemy statement to apply order_by to
+            params (dict[str, Any]): The filters to apply
 
-        Yields:
-            Generator[Any, None, None]: Generated order_by expressions
-
+        Returns:
+            (Select): The order_by sqlalchemy statement
         """
+        if 'order_by' not in params:
+            return statement
+        return statement.order_by(*self._generate_order_by(params['order_by']))
+
+    def _generate_order_by(self, order_by: str):
         for attr in order_by.split(','):
             if attr.startswith("-"):
                 order = 'desc'
