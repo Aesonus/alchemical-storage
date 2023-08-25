@@ -6,7 +6,7 @@ from typing import Any
 from alchemical_storage.visitor import StatementVisitor, T
 
 
-class JoinVisitor(StatementVisitor):
+class JoinMap(StatementVisitor):
     def __init__(self, joins: dict[tuple[str, ...], str | tuple[Any, ...]], import_from: str):
         self.__module = importlib.import_module(import_from)
         self.joins = {}

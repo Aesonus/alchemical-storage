@@ -7,7 +7,7 @@ from sqlalchemy.sql.expression import ColumnElement
 
 from alchemical_storage.filter import FilterMap
 from alchemical_storage.filter.filter import OrderByMap
-from alchemical_storage.join import JoinVisitor
+from alchemical_storage.join import JoinMap
 from alchemical_storage.storage import DatabaseStorage
 from alchemical_storage.storage.exc import ConflictError, NotFoundError
 from tests import models
@@ -51,7 +51,7 @@ class TestDatabaseStorageWithSinglePk:
     @pytest.fixture
     def joins(self):
         """Create a join for the dummy model"""
-        return JoinVisitor(
+        return JoinMap(
             {('related_attr', ): (
                 'RelatedToModel',
                 models.RelatedToModel.model_id == models.Model.attr

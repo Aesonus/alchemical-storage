@@ -4,7 +4,7 @@ import pytest
 import pytest_mock
 import sqlalchemy
 
-from alchemical_storage.join import JoinVisitor
+from alchemical_storage.join import JoinMap
 from tests.models import RelatedToModel
 
 # pylint: disable=too-few-public-methods,redefined-outer-name
@@ -30,7 +30,7 @@ class TestJoinVisitor:
             joins, expected_call_args
     ):
         """Test joining a model"""
-        join_visitor = JoinVisitor(
+        join_visitor = JoinMap(
             joins, 'tests.models'
         )
         join_visitor.visit_statement(
@@ -44,7 +44,7 @@ class TestJoinVisitor:
             self, mock_sql_statement: Mock
     ):
         """Test that no join is added if the joinable params are missing"""
-        join_visitor = JoinVisitor(
+        join_visitor = JoinMap(
             {('join_param', ): 'RelatedToModel.model_id'}, 'tests.models'
         )
         join_visitor.visit_statement(
