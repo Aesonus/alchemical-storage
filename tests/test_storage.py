@@ -7,6 +7,7 @@ from sqlalchemy.sql.expression import ColumnElement
 
 from alchemical_storage.filter import FilterMap
 from alchemical_storage.filter.filter import OrderByMap
+from alchemical_storage.join import JoinVisitor
 from alchemical_storage.storage import DatabaseStorage
 from alchemical_storage.storage.exc import ConflictError, NotFoundError
 from tests import models
@@ -24,6 +25,9 @@ class TestDatabaseStorageWithSinglePk:
         models.Base.metadata.create_all(bind=engine)
         session = orm.sessionmaker(bind=engine)()
         session.add_all(existing_models)
+        session.add_all([
+            models.RelatedToModel(attr=1, model=existing_models[0]),
+        ])
         session.commit()
         yield session
         session.close()
@@ -34,6 +38,7 @@ class TestDatabaseStorageWithSinglePk:
         """Create a filter for the dummy model"""
         return FilterMap({
             "attr3_like": ('Model.attr3', ColumnElement.ilike),
+            "related_attr": 'RelatedToModel.attr',
         }, 'tests.models')
 
     @pytest.fixture
@@ -42,6 +47,15 @@ class TestDatabaseStorageWithSinglePk:
         return OrderByMap({
             "attr2": 'Model.attr2',
         }, 'tests.models')
+
+    @pytest.fixture
+    def joins(self):
+        """Create a join for the dummy model"""
+        return JoinVisitor(
+            {('related_attr', ): (
+                'RelatedToModel',
+                models.RelatedToModel.model_id == models.Model.attr
+            )}, 'tests.models')
 
     @pytest.fixture
     def model_schema(self, session):
@@ -61,11 +75,11 @@ class TestDatabaseStorageWithSinglePk:
         ]
 
     @pytest.fixture
-    def model_storage(self, session, model_schema, entity_filters, entity_order_by):
+    def model_storage(self, session, model_schema, joins, entity_filters, entity_order_by):
         """Create DatabaseStorage instance for a model with single primary key"""
         return DatabaseStorage(
             session, models.Model, model_schema, primary_key="attr",
-            statement_visitors=[entity_filters, entity_order_by]
+            statement_visitors=[entity_filters, entity_order_by, joins]
         )
 
     def test_model_storage_get_raises_not_found_error_if_model_not_found(
@@ -126,10 +140,16 @@ class TestDatabaseStorageWithSinglePk:
         """Test that index returns filtered list of models"""
         assert model_storage.index(attr3_like="%notfound%") == []
 
+    def test_model_storage_index_returns_filtered_list_of_models_having_join_filters(
+            self, model_storage: DatabaseStorage[models.Model], existing_models):
+        """Test that index returns filtered list of models having related"""
+        assert model_storage.index(related_attr=1) == [existing_models[0]]
+
     def test_model_storage_index_returns_list_of_models(
             self, model_storage: DatabaseStorage[models.Model], existing_models):
         """Test that index returns list of models"""
-        assert model_storage.index() == existing_models
+        actual = model_storage.index()
+        assert actual == [existing_models[0], existing_models[1]]
 
     def test_model_storage_index_returns_list_of_models_with_pagination(
         self, model_storage: DatabaseStorage[models.Model], existing_models
