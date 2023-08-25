@@ -12,12 +12,11 @@ from alchemical_storage.storage import DatabaseStorage
 from alchemical_storage.storage.exc import ConflictError, NotFoundError
 from tests import models
 
-# pylint: disable=too-many-public-methods
+# pylint: disable=too-many-public-methods, too-many-arguments, too-few-public-methods, missing-class-docstring, missing-function-docstring
 
 
 class TestDatabaseStorageWithSinglePk:
     """Test the database storage class"""
-    # pylint: disable=missing-class-docstring,too-few-public-methods
     @pytest.fixture
     def session(self, existing_models: list[models.Model]):
         """Create a session for testing"""
@@ -181,7 +180,6 @@ class TestDatabaseStorageWithSinglePk:
 
 class TestDatabaseStorageWithCompositePk:
     """Tests for composite pk models"""
-    # pylint: disable=missing-class-docstring,too-few-public-methods
     @pytest.fixture
     def session(self, existing_models: list[models.CompositePkModel]):
         """Create a session for testing"""
