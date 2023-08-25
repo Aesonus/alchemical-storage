@@ -16,6 +16,7 @@ class JoinMap(StatementVisitor):
 
     Example:
         ::
+
             join_visitor = JoinMap({
                 ('join_param',): 'RelatedToModel',
             }, 'your_models_module.models')
