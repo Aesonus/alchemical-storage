@@ -8,7 +8,6 @@ Storage
     :members:
     :show-inheritance:
     :inherited-members:
-    :undoc-members:
 
 Visitor
 -------
@@ -17,7 +16,6 @@ Visitor
     :members:
     :show-inheritance:
     :inherited-members:
-    :undoc-members:
 
 Filter
 ------
@@ -26,4 +24,12 @@ Filter
     :members:
     :show-inheritance:
     :inherited-members:
-    :undoc-members:
+
+Joins
+-----
+
+.. automodule:: alchemical_storage.join
+    :members:
+    :show-inheritance:
+    :inherited-members:
+

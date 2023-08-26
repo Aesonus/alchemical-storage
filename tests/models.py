@@ -17,6 +17,8 @@ class Model(Base):
     attr3: orm.Mapped[str]
     related = orm.relationship(
         'RelatedToModel', uselist=True, back_populates='model', cascade='all, delete-orphan')
+    other_related = orm.relationship(
+        'OtherRelatedToModel', uselist=True, back_populates='model', cascade='all, delete-orphan')
 
 
 class RelatedToModel(Base):
@@ -25,6 +27,14 @@ class RelatedToModel(Base):
     attr: orm.Mapped[int] = orm.mapped_column(primary_key=True)
     model_id: orm.Mapped[int] = orm.mapped_column(sqla.ForeignKey(Model.attr))
     model = orm.relationship(Model, back_populates='related')
+
+
+class OtherRelatedToModel(Base):
+    """Dummy model class"""
+    __tablename__ = 'other_related_to_models'
+    attr: orm.Mapped[int] = orm.mapped_column(primary_key=True)
+    model_id: orm.Mapped[int] = orm.mapped_column(sqla.ForeignKey(Model.attr))
+    model = orm.relationship(Model, back_populates='other_related')
 
 
 class CompositePkModel(Base):

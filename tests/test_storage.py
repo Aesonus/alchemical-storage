@@ -51,10 +51,9 @@ class TestDatabaseStorageWithSinglePk:
     def joins(self):
         """Create a join for the dummy model"""
         return JoinMap(
-            {('related_attr', ): (
-                'RelatedToModel',
-                models.RelatedToModel.model_id == models.Model.attr
-            )}, 'tests.models')
+            'tests.models', ('related_attr',),
+            ('RelatedToModel', )
+        )
 
     @pytest.fixture
     def model_schema(self, session):
