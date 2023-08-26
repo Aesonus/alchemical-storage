@@ -1,4 +1,4 @@
-"""Module for the filter and order by maps."""
+"""Classes to apply where and order_by clauses to sqlalchemy queries."""
 
 from .filter import FilterMap, OrderByMap
 

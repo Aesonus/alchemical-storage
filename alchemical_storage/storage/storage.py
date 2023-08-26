@@ -6,13 +6,13 @@ from typing import Any, Generic, Iterable, Optional, Sequence, Type, TypeVar
 
 import sqlalchemy as sql
 from marshmallow_sqlalchemy import SQLAlchemySchema
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import DeclarativeBase, Session
 
 from alchemical_storage.visitor import StatementVisitor
 
 from .exc import ConflictError, NotFoundError
 
-AlchemyModel = TypeVar("AlchemyModel",)
+AlchemyModel = TypeVar("AlchemyModel", bound=DeclarativeBase)
 
 
 class StorageABC(abc.ABC, Generic[AlchemyModel]):
