@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alchemical-storage"
-version = "1.0.0-dev0"
+version = "1.0.0-dev1"
 description = "Storage based off of sqlalchemy_marshmallow"
 authors = ["Cory Laughlin <corylcomposinger@gmail.com>"]
 license = "MIT"
@@ -34,14 +34,12 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-branch --cov-report xml --cov-report html -vvv"
+addopts = "--cov=alchemical_storage --cov-branch --cov-report xml --cov-report html -vvv"
 
 [tool.autoflake]
 recursive = true
 in_place = true
 
-[tool.black]
-line_length = 100
 
 [tool.isort]
 profile = "black"
