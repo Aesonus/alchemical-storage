@@ -81,9 +81,7 @@ class TestDatabaseStorageWithSinglePk:
         ]
 
     @pytest.fixture
-    def model_storage(
-        self, session, model_schema, joins, entity_filters, entity_order_by
-    ):
+    def model_storage(self, session, model_schema, joins, entity_filters, entity_order_by):
         """Create DatabaseStorage instance for a model with single primary key"""
         return DatabaseStorage(
             session,
@@ -153,6 +151,13 @@ class TestDatabaseStorageWithSinglePk:
         model_storage.session.flush()
         assert existing_models[0] not in model_storage.session
 
+    def test_model_storage_delete_raises_not_found_error_if_model_not_found(
+        self, model_storage: DatabaseStorage[models.Model]
+    ):
+        """Test that delete raises NotFoundError if model not found"""
+        with pytest.raises(NotFoundError):
+            model_storage.delete(2)
+
     def test_model_storage_index_returns_filtered_list_of_models(
         self, model_storage: DatabaseStorage[models.Model]
     ):
@@ -176,12 +181,8 @@ class TestDatabaseStorageWithSinglePk:
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
         """Test that index returns list of models with pagination"""
-        assert (
-            model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
-        )
-        assert model_storage.index(page_params=models.PageParams(5, 1)) == [
-            existing_models[1]
-        ]
+        assert model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
+        assert model_storage.index(page_params=models.PageParams(5, 1)) == [existing_models[1]]
 
     def test_model_storage_returns_ordered_list_of_models(
         self, model_storage: DatabaseStorage[models.Model], existing_models
@@ -347,20 +348,14 @@ class TestDatabaseStorageWithCompositePk:
         self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
     ):
         """Test that index returns ordered list of models"""
-        assert model_storage.index(order_by="attr,-attr2") == list(
-            reversed(existing_models)
-        )
+        assert model_storage.index(order_by="attr,-attr2") == list(reversed(existing_models))
 
     def test_model_storage_index_returns_list_of_models_with_pagination(
         self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
     ):
         """Test that index returns list of models with pagination"""
-        assert (
-            model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
-        )
-        assert model_storage.index(page_params=models.PageParams(5, 1)) == [
-            existing_models[1]
-        ]
+        assert model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
+        assert model_storage.index(page_params=models.PageParams(5, 1)) == [existing_models[1]]
 
     @pytest.mark.parametrize(
         "filters, expected_count",

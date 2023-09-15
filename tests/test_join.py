@@ -30,6 +30,11 @@ class TestJoinVisitor:
                     [("RelatedToModel",)],
                     [(RelatedToModel,)],
                 ),
+                "one join as string": (
+                    ("join_param",),
+                    ["RelatedToModel"],
+                    [(RelatedToModel,)],
+                ),
                 "one join with on": (
                     ("join_param",),
                     [("RelatedToModel", "Model.related")],
