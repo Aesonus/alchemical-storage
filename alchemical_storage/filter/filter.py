@@ -38,6 +38,7 @@ class FilterMap(StatementVisitor):
         + May use sqlalchemy's `sqlalchemy.sql.operators` for the operator.
         + The `your_models_module.models` is the module where the models are defined.
     """
+
     filters: dict[str, Callable]
 
     def __init__(self, filters: dict[str, Any], import_from: str) -> None:
@@ -50,7 +51,7 @@ class FilterMap(StatementVisitor):
                 attr = exprs
                 op_ = operator.eq
             get_by = None
-            for child in attr.split('.'):
+            for child in attr.split("."):
                 if not get_by:
                     get_by = getattr(self.__module, child)
                 else:
@@ -76,7 +77,9 @@ class FilterMap(StatementVisitor):
         """
         return statement.where(*self._generate_whereclauses(params))
 
-    def _generate_whereclauses(self, given_filters: dict[str, Any]) -> Generator[Any, None, None]:
+    def _generate_whereclauses(
+        self, given_filters: dict[str, Any]
+    ) -> Generator[Any, None, None]:
         for attr, filtered_by in given_filters.items():
             if attr in self.filters:
                 yield self.filters[attr](filtered_by)
@@ -99,6 +102,7 @@ class OrderByMap(StatementVisitor):
                 "player_on": 'Game.played_on',
             }, 'your_models_module.models')
     """
+
     order_by_attributes: dict[str, Any]
 
     def __init__(self, order_by_attributes: dict[str, Any], import_from: str) -> None:
@@ -106,7 +110,7 @@ class OrderByMap(StatementVisitor):
         self.order_by_attributes = {}
         for attr, column in order_by_attributes.items():
             if "." in column:
-                model, model_attr = column.split('.')
+                model, model_attr = column.split(".")
                 order_by = getattr(getattr(module, model), model_attr)
             else:
                 order_by = column
@@ -124,19 +128,19 @@ class OrderByMap(StatementVisitor):
         Returns:
             (T): The order_by sqlalchemy statement
         """
-        if 'order_by' not in params:
+        if "order_by" not in params:
             return statement
-        return statement.order_by(*self._generate_order_by(params['order_by']))
+        return statement.order_by(*self._generate_order_by(params["order_by"]))
 
     def _generate_order_by(self, order_by: str):
-        for attr in order_by.split(','):
+        for attr in order_by.split(","):
             if attr.startswith("-"):
-                order = 'desc'
+                order = "desc"
                 attr = attr[1:]
             else:
-                order = 'asc'
+                order = "asc"
             if attr in self.order_by_attributes:
-                if order == 'desc':
+                if order == "desc":
                     yield desc(self.order_by_attributes[attr])
                 else:
                     yield self.order_by_attributes[attr]

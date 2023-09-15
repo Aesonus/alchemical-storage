@@ -48,7 +48,7 @@ class JoinMap(StatementVisitor):
 
     def _import_entity(self, entity: str) -> Any:
         get_by = None
-        for child in entity.split('.'):
+        for child in entity.split("."):
             if not get_by:
                 get_by = getattr(self.__module, child)
             else:
@@ -57,7 +57,7 @@ class JoinMap(StatementVisitor):
 
     def _get_join(self, join: JoinExpression) -> tuple[Any, ...]:
         if isinstance(join, str):
-            join = (join, )
+            join = (join,)
         if isinstance(join[0], str):
             get_by = self._import_entity(join[0])
         else:

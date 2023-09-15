@@ -1,9 +1,8 @@
-
 from typing import Any
 
 
 def _dict_to_params(
-        test_cases: dict[str, Any],
+    test_cases: dict[str, Any],
 ):
     args = {
         "argvalues": [],

@@ -17,6 +17,7 @@ AlchemyModel = TypeVar("AlchemyModel", bound=DeclarativeBase)
 
 class StorageABC(abc.ABC, Generic[AlchemyModel]):
     """Resource storage protocol"""
+
     @abc.abstractmethod
     def get(self, identity: Any) -> AlchemyModel:
         """
@@ -28,6 +29,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
         Returns:
             AlchemyModel: Object that can be serialized to output for api
         """
+
     @abc.abstractmethod
     def index(self, **kwargs) -> list[AlchemyModel]:
         """
@@ -36,6 +38,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
         Returns:
             list[AlchemyModel]: List of objects that can be serialized to output for api
         """
+
     @abc.abstractmethod
     def count_index(self, **kwargs) -> int:
         """
@@ -44,6 +47,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
         Returns:
             int: Count of objects in given set
         """
+
     @abc.abstractmethod
     def put(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
         """
@@ -56,6 +60,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
         Returns:
             AlchemyModel: Object that can be serialized to output for api
         """
+
     @abc.abstractmethod
     def patch(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
         """
@@ -68,6 +73,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
         Returns:
             AlchemyModel: Object that can be serialized to output for api
         """
+
     @abc.abstractmethod
     def delete(self, identity: Any) -> AlchemyModel:
         """
@@ -79,6 +85,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
         Returns:
             AlchemyModel: Object that can be serialized to output for api
         """
+
     @abc.abstractmethod
     def __contains__(self, identity: Any) -> bool:
         """
@@ -105,17 +112,19 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
         statement_visitors (Optional[list[StatementVisitor]]): List of statement visitors to apply
             to all statements
     """
+
     session: Session
     entity: Type[AlchemyModel]
     storage_schema: SQLAlchemySchema
 
-    def __init__(self,
-                 session,
-                 entity: Type[AlchemyModel],
-                 storage_schema: SQLAlchemySchema,
-                 primary_key: str|Sequence[str]="slug",
-                 statement_visitors: Optional[list[StatementVisitor]] = None,
-                 ):
+    def __init__(
+        self,
+        session,
+        entity: Type[AlchemyModel],
+        storage_schema: SQLAlchemySchema,
+        primary_key: str | Sequence[str] = "slug",
+        statement_visitors: Optional[list[StatementVisitor]] = None,
+    ):
         self.session = session
         self.entity = entity
         self.storage_schema = storage_schema
@@ -131,23 +140,28 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
         Ensures that the identity of the resource is passed to
         the decorated function as a tuple
         """
+
         @functools.wraps(func)
         def decorator(*args, **kwargs):
             argslist = list(args)
             identity_index = int(isinstance(args[0], StorageABC))
             identity = args[identity_index]
             if not isinstance(identity, Iterable) or isinstance(identity, (str, bytes)):
-                identity = (identity, )
+                identity = (identity,)
             else:
                 identity = tuple(identity)
             argslist[identity_index] = identity
             return func(*argslist, **kwargs)
+
         return decorator
 
     @_convert_identity
     def get(self, identity: Any, **kwargs) -> AlchemyModel:
         stmt = sql.select(self.entity).where(
-            *(getattr(self.entity, _attr) == id for _attr, id in zip(self._attr, identity))
+            *(
+                getattr(self.entity, _attr) == id
+                for _attr, id in zip(self._attr, identity)
+            )
         )
         for visitor in self._statement_visitors:
             stmt = visitor.visit_statement(stmt, kwargs)
@@ -160,8 +174,7 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
         for visitor in self._statement_visitors:
             stmt = visitor.visit_statement(stmt, kwargs)
         if page_params:
-            stmt = stmt.limit(page_params.page_size).offset(
-                page_params.first_item)
+            stmt = stmt.limit(page_params.page_size).offset(page_params.first_item)
         return [*self.session.execute(stmt).unique().scalars().all()]
 
     def count_index(self, **kwargs) -> int:
@@ -185,8 +198,7 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
     def patch(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
         if not identity in self:
             raise NotFoundError
-        self.storage_schema.load(
-            data, partial=True, instance=self.get(identity))
+        self.storage_schema.load(data, partial=True, instance=self.get(identity))
         self.session.flush()
         return self.get(identity)
 
@@ -201,10 +213,15 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
     @_convert_identity
     def __contains__(self, identity: Any) -> bool:
         if result := self.session.execute(
-            sql.select(sql.func.count(  # pylint: disable=not-callable
-                getattr(self.entity, self._attr[0])
-            )).where(
-                *(getattr(self.entity, _attr) == id for _attr, id in zip(self._attr, identity))
+            sql.select(
+                sql.func.count(  # pylint: disable=not-callable
+                    getattr(self.entity, self._attr[0])
+                )
+            ).where(
+                *(
+                    getattr(self.entity, _attr) == id
+                    for _attr, id in zip(self._attr, identity)
+                )
             )
         ).scalar():
             return result > 0

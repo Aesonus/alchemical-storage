@@ -3,6 +3,6 @@
 from .filter import FilterMap, OrderByMap
 
 __all__ = [
-    'FilterMap',
-    'OrderByMap',
+    "FilterMap",
+    "OrderByMap",
 ]
