@@ -1,4 +1,4 @@
-"""Test the database storage class"""
+"""Test the database storage class."""
 import pytest
 import sqlalchemy as sa
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
@@ -16,11 +16,11 @@ from tests import models
 
 
 class TestDatabaseStorageWithSinglePk:
-    """Test the database storage class"""
+    """Test the database storage class."""
 
     @pytest.fixture
     def session(self, existing_models: list[models.Model]):
-        """Create a session for testing"""
+        """Create a session for testing."""
         engine = sa.create_engine("sqlite:///:memory:")
         models.Base.metadata.create_all(bind=engine)
         session = orm.sessionmaker(bind=engine)()
@@ -37,7 +37,7 @@ class TestDatabaseStorageWithSinglePk:
 
     @pytest.fixture
     def entity_filters(self):
-        """Create a filter for the dummy model"""
+        """Create a filter for the dummy model."""
         return FilterMap(
             {
                 "attr3_like": ("Model.attr3", ColumnElement.ilike),
@@ -48,7 +48,7 @@ class TestDatabaseStorageWithSinglePk:
 
     @pytest.fixture
     def entity_order_by(self):
-        """Create an order by for the dummy model"""
+        """Create an order by for the dummy model."""
         return OrderByMap(
             {
                 "attr2": "Model.attr2",
@@ -58,12 +58,12 @@ class TestDatabaseStorageWithSinglePk:
 
     @pytest.fixture
     def joins(self):
-        """Create a join for the dummy model"""
+        """Create a join for the dummy model."""
         return JoinMap("tests.models", ("related_attr",), ("RelatedToModel",))
 
     @pytest.fixture
     def model_schema(self, session):
-        """Create a dummy model schema"""
+        """Create a dummy model schema."""
 
         class ModelSchema(SQLAlchemyAutoSchema):
             class Meta:
@@ -74,15 +74,18 @@ class TestDatabaseStorageWithSinglePk:
 
     @pytest.fixture
     def existing_models(self):
-        """Create a dummy model"""
+        """Create a dummy model."""
         return [
             models.Model(attr=1, attr2=1, attr3="test1"),
             models.Model(attr=3, attr2=3, attr3="test3"),
         ]
 
     @pytest.fixture
-    def model_storage(self, session, model_schema, joins, entity_filters, entity_order_by):
-        """Create DatabaseStorage instance for a model with single primary key"""
+    def model_storage(
+        self, session, model_schema, joins, entity_filters, entity_order_by
+    ):
+        """Create DatabaseStorage instance for a model with single primary
+        key."""
         return DatabaseStorage(
             session,
             models.Model,
@@ -94,14 +97,14 @@ class TestDatabaseStorageWithSinglePk:
     def test_model_storage_get_raises_not_found_error_if_model_not_found(
         self, model_storage: DatabaseStorage[models.Model]
     ):
-        """Test that get raises NotFoundError if model not found"""
+        """Test that get raises NotFoundError if model not found."""
         with pytest.raises(NotFoundError):
             model_storage.get(2)
 
     def test_model_storage_get_returns_found_model(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
-        """Test that get returns found model"""
+        """Test that get returns found model."""
         model = model_storage.get(1)
         assert model.attr == 1
         assert model.attr2 == 1
@@ -111,7 +114,7 @@ class TestDatabaseStorageWithSinglePk:
     def test_model_storage_put_inserts_new_model(
         self, model_storage: DatabaseStorage[models.Model]
     ):
-        """Test that put inserts new model"""
+        """Test that put inserts new model."""
         model = model_storage.put(2, {"attr2": 2, "attr3": "test2"})
         model_storage.session.flush()
         assert model.attr == 2
@@ -122,14 +125,14 @@ class TestDatabaseStorageWithSinglePk:
     def test_model_storage_put_raises_conflict_error_if_model_already_exists(
         self, model_storage: DatabaseStorage[models.Model]
     ):
-        """Test that put raises ConflictError if model already exists"""
+        """Test that put raises ConflictError if model already exists."""
         with pytest.raises(ConflictError):
             model_storage.put(1, {"attr2": 2, "attr3": "test2"})
 
     def test_model_storage_patch_updates_existing_model(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
-        """Test that patch updates existing model"""
+        """Test that patch updates existing model."""
         model = model_storage.patch(1, {"attr2": 2, "attr3": "test2"})
         assert model.attr == 1
         assert model.attr2 == 2
@@ -139,14 +142,14 @@ class TestDatabaseStorageWithSinglePk:
     def test_model_storage_patch_raises_not_found_error_if_model_not_found(
         self, model_storage: DatabaseStorage[models.Model]
     ):
-        """Test that patch raises NotFoundError if model not found"""
+        """Test that patch raises NotFoundError if model not found."""
         with pytest.raises(NotFoundError):
             model_storage.patch(2, {"attr2": 2, "attr3": "test2"})
 
     def test_model_storage_delete_deletes_model(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
-        """Test that delete deletes model"""
+        """Test that delete deletes model."""
         model_storage.delete(1)
         model_storage.session.flush()
         assert existing_models[0] not in model_storage.session
@@ -154,40 +157,44 @@ class TestDatabaseStorageWithSinglePk:
     def test_model_storage_delete_raises_not_found_error_if_model_not_found(
         self, model_storage: DatabaseStorage[models.Model]
     ):
-        """Test that delete raises NotFoundError if model not found"""
+        """Test that delete raises NotFoundError if model not found."""
         with pytest.raises(NotFoundError):
             model_storage.delete(2)
 
     def test_model_storage_index_returns_filtered_list_of_models(
         self, model_storage: DatabaseStorage[models.Model]
     ):
-        """Test that index returns filtered list of models"""
+        """Test that index returns filtered list of models."""
         assert model_storage.index(attr3_like="%notfound%") == []
 
     def test_model_storage_index_returns_filtered_list_of_models_having_join_filters(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
-        """Test that index returns filtered list of models having related"""
+        """Test that index returns filtered list of models having related."""
         assert model_storage.index(related_attr=1) == [existing_models[0]]
 
     def test_model_storage_index_returns_list_of_models(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
-        """Test that index returns list of models"""
+        """Test that index returns list of models."""
         actual = model_storage.index()
         assert actual == [existing_models[0], existing_models[1]]
 
     def test_model_storage_index_returns_list_of_models_with_pagination(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
-        """Test that index returns list of models with pagination"""
-        assert model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
-        assert model_storage.index(page_params=models.PageParams(5, 1)) == [existing_models[1]]
+        """Test that index returns list of models with pagination."""
+        assert (
+            model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
+        )
+        assert model_storage.index(page_params=models.PageParams(5, 1)) == [
+            existing_models[1]
+        ]
 
-    def test_model_storage_returns_ordered_list_of_models(
+    def test_model_storage_index_returns_ordered_list_of_models(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
-        """Test that index returns ordered list of models"""
+        """Test that index returns ordered list of models."""
         assert model_storage.index(order_by="-attr2") == list(reversed(existing_models))
 
     @pytest.mark.parametrize(
@@ -202,16 +209,16 @@ class TestDatabaseStorageWithSinglePk:
     def test_model_storage_count_index_returns_count_of_models(
         self, model_storage: DatabaseStorage[models.Model], filters, expected_count
     ):
-        """Test that count_index returns count of models"""
+        """Test that count_index returns count of models."""
         assert model_storage.count_index(**filters) == expected_count
 
 
 class TestDatabaseStorageWithCompositePk:
-    """Tests for composite pk models"""
+    """Tests for composite pk models."""
 
     @pytest.fixture
     def session(self, existing_models: list[models.CompositePkModel]):
-        """Create a session for testing"""
+        """Create a session for testing."""
         engine = sa.create_engine("sqlite:///:memory:")
         models.Base.metadata.create_all(bind=engine)
         session = orm.sessionmaker(bind=engine)()
@@ -223,7 +230,7 @@ class TestDatabaseStorageWithCompositePk:
 
     @pytest.fixture
     def existing_models(self):
-        """Create a dummy model"""
+        """Create a dummy model."""
         return [
             models.CompositePkModel(attr=1, attr2=1, attr3="test1"),
             models.CompositePkModel(attr=1, attr2=2, attr3="test2"),
@@ -231,7 +238,7 @@ class TestDatabaseStorageWithCompositePk:
 
     @pytest.fixture
     def entity_order_by(self):
-        """Create an order by for the dummy model"""
+        """Create an order by for the dummy model."""
         return OrderByMap(
             {
                 "attr": "CompositePkModel.attr",
@@ -242,7 +249,7 @@ class TestDatabaseStorageWithCompositePk:
 
     @pytest.fixture
     def entity_filters(self):
-        """Create a filter for the dummy model"""
+        """Create a filter for the dummy model."""
         return FilterMap(
             {
                 "attr3_like": ("CompositePkModel.attr3", ColumnElement.ilike),
@@ -252,7 +259,8 @@ class TestDatabaseStorageWithCompositePk:
 
     @pytest.fixture
     def model_storage(self, session, model_schema, entity_filters, entity_order_by):
-        """Create DatabaseStorage instance for a model with composite primary key"""
+        """Create DatabaseStorage instance for a model with composite primary
+        key."""
         return DatabaseStorage(
             session,
             models.CompositePkModel,
@@ -263,7 +271,7 @@ class TestDatabaseStorageWithCompositePk:
 
     @pytest.fixture
     def model_schema(self, session):
-        """Create a dummy model schema"""
+        """Create a dummy model schema."""
 
         class ModelSchema(SQLAlchemyAutoSchema):
             class Meta:
@@ -275,14 +283,14 @@ class TestDatabaseStorageWithCompositePk:
     def test_model_storage_get_raises_not_found_error_if_model_not_found(
         self, model_storage: DatabaseStorage[models.CompositePkModel]
     ):
-        """Test that get raises NotFoundError if model not found"""
+        """Test that get raises NotFoundError if model not found."""
         with pytest.raises(NotFoundError):
             model_storage.get((1, 3))
 
     def test_model_storage_get_returns_found_model(
         self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
     ):
-        """Test that get returns found model"""
+        """Test that get returns found model."""
         model = model_storage.get((1, 1))
         assert model.attr == 1
         assert model.attr2 == 1
@@ -292,7 +300,7 @@ class TestDatabaseStorageWithCompositePk:
     def test_model_storage_put_inserts_new_model(
         self, model_storage: DatabaseStorage[models.CompositePkModel]
     ):
-        """Test that put inserts new model"""
+        """Test that put inserts new model."""
         model = model_storage.put((1, 3), {"attr3": "test2"})
         assert model.attr == 1
         assert model.attr2 == 3
@@ -303,14 +311,14 @@ class TestDatabaseStorageWithCompositePk:
     def test_model_storage_put_raises_conflict_error_if_model_already_exists(
         self, model_storage: DatabaseStorage[models.CompositePkModel]
     ):
-        """Test that put raises ConflictError if model already exists"""
+        """Test that put raises ConflictError if model already exists."""
         with pytest.raises(ConflictError):
             model_storage.put((1, 1), {"attr3": "test2"})
 
     def test_model_storage_patch_updates_existing_model(
         self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
     ):
-        """Test that patch updates existing model"""
+        """Test that patch updates existing model."""
         model = model_storage.patch((1, 1), {"attr3": "test2"})
         assert model.attr == 1
         assert model.attr2 == 1
@@ -320,14 +328,14 @@ class TestDatabaseStorageWithCompositePk:
     def test_model_storage_patch_raises_not_found_error_if_model_not_found(
         self, model_storage: DatabaseStorage[models.CompositePkModel]
     ):
-        """Test that patch raises NotFoundError if model not found"""
+        """Test that patch raises NotFoundError if model not found."""
         with pytest.raises(NotFoundError):
             model_storage.patch((1, 3), {"attr3": "test2"})
 
     def test_model_storage_delete_deletes_model(
         self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
     ):
-        """Test that delete deletes model"""
+        """Test that delete deletes model."""
         model_storage.delete((1, 1))
         model_storage.session.flush()
         assert existing_models[0] not in model_storage.session
@@ -335,27 +343,33 @@ class TestDatabaseStorageWithCompositePk:
     def test_model_storage_index_returns_filtered_list_of_models(
         self, model_storage: DatabaseStorage[models.CompositePkModel]
     ):
-        """Test that index returns filtered list of models"""
+        """Test that index returns filtered list of models."""
         assert model_storage.index(attr3_like="%notfound%") == []
 
     def test_model_storage_index_returns_list_of_models(
         self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
     ):
-        """Test that index returns list of models"""
+        """Test that index returns list of models."""
         assert model_storage.index() == existing_models
 
     def test_model_storage_index_returns_ordered_list_of_models(
         self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
     ):
-        """Test that index returns ordered list of models"""
-        assert model_storage.index(order_by="attr,-attr2") == list(reversed(existing_models))
+        """Test that index returns ordered list of models."""
+        assert model_storage.index(order_by="attr,-attr2") == list(
+            reversed(existing_models)
+        )
 
     def test_model_storage_index_returns_list_of_models_with_pagination(
         self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
     ):
-        """Test that index returns list of models with pagination"""
-        assert model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
-        assert model_storage.index(page_params=models.PageParams(5, 1)) == [existing_models[1]]
+        """Test that index returns list of models with pagination."""
+        assert (
+            model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
+        )
+        assert model_storage.index(page_params=models.PageParams(5, 1)) == [
+            existing_models[1]
+        ]
 
     @pytest.mark.parametrize(
         "filters, expected_count",
@@ -371,5 +385,5 @@ class TestDatabaseStorageWithCompositePk:
         filters,
         expected_count,
     ):
-        """Test that count_index returns count of models"""
+        """Test that count_index returns count of models."""
         assert model_storage.count_index(**filters) == expected_count

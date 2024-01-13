@@ -1,4 +1,4 @@
-"""SQLAlchemy models for tests"""
+"""SQLAlchemy models for tests."""
 import sqlalchemy as sqla
 from sqlalchemy import orm
 
@@ -6,11 +6,11 @@ from sqlalchemy import orm
 
 
 class Base(orm.DeclarativeBase):
-    """Base class for all models"""
+    """Base class for all models."""
 
 
 class Model(Base):
-    """Dummy model class"""
+    """Dummy model class."""
 
     __tablename__ = "models"
     attr: orm.Mapped[int] = orm.mapped_column(primary_key=True)
@@ -31,7 +31,7 @@ class Model(Base):
 
 
 class RelatedToModel(Base):
-    """Dummy model class"""
+    """Dummy model class."""
 
     __tablename__ = "related_to_models"
     attr: orm.Mapped[int] = orm.mapped_column(primary_key=True)
@@ -40,7 +40,7 @@ class RelatedToModel(Base):
 
 
 class OtherRelatedToModel(Base):
-    """Dummy model class"""
+    """Dummy model class."""
 
     __tablename__ = "other_related_to_models"
     attr: orm.Mapped[int] = orm.mapped_column(primary_key=True)
@@ -49,7 +49,7 @@ class OtherRelatedToModel(Base):
 
 
 class CompositePkModel(Base):
-    """Dummy model class"""
+    """Dummy model class."""
 
     __tablename__ = "composite_pk_models"
     attr: orm.Mapped[int] = orm.mapped_column(primary_key=True)
@@ -58,7 +58,7 @@ class CompositePkModel(Base):
 
 
 class PageParams:
-    """Class for page params"""
+    """Class for page params."""
 
     def __init__(self, page_size: int, first_item: int) -> None:
         self.page_size = page_size

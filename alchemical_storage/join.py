@@ -9,8 +9,7 @@ JoinExpression = str | tuple[Any, ...]
 
 
 class JoinMap(StatementVisitor):
-    """
-    Class for adding joins to sqlalchemy queries.
+    """Class for adding joins to sqlalchemy queries.
 
     Args:
         import_from (str): The module to import the models/entities from.
@@ -28,7 +27,6 @@ class JoinMap(StatementVisitor):
             join_map = JoinMap(
                 'tests.models', ('join_param', ), ('RelatedToModel', )
             )
-
     """
 
     joins: tuple[tuple[Any, ...], ...]

@@ -1,6 +1,4 @@
-"""
-Contains the visitor interface for sqlalchemy statements
-"""
+"""Contains the visitor interface for sqlalchemy statements."""
 
 import abc
 from typing import Any, TypeVar
@@ -11,12 +9,11 @@ T = TypeVar("T", sql.Select, sql.ColumnElement)
 
 
 class StatementVisitor(abc.ABC):
-    """Visitor class for sqlalchemy statements"""
+    """Visitor class for sqlalchemy statements."""
 
     @abc.abstractmethod
     def visit_statement(self, statement: T, params: dict[str, Any]) -> T:
-        """
-        Visit a statement
+        """Visit a statement.
 
         Args:
             statement (T): The statement to visit

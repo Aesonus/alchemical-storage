@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "alchemical_storage"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.13"
 sqlalchemy = "^2.0.19"
 marshmallow-sqlalchemy = "^0.29.0"
 
@@ -23,6 +23,8 @@ esbonio = "^0.16.1"
 black = "^23.7.0"
 isort = "^5.12.0"
 autoflake = "^2.2.1"
+docformatter = "^1.7.5"
+pre-commit = "^3.6.0"
 
 
 [tool.poetry.group.doc.dependencies]
@@ -39,7 +41,13 @@ addopts = "--cov=alchemical_storage --cov-branch --cov-report xml --cov-report h
 [tool.autoflake]
 recursive = true
 in_place = true
+remove_all_unused_imports = true
 
 
 [tool.isort]
 profile = "black"
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    ]

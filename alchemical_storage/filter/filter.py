@@ -1,7 +1,6 @@
-"""
-Build upon the ``alchemical_storage.visitor`` module to create a classes that can be used to map
-filters and order_by attributes to sqlalchemy statements.
-"""
+"""Build upon the ``alchemical_storage.visitor`` module to create a classes
+that can be used to map filters and order_by attributes to sqlalchemy
+statements."""
 
 import functools
 import importlib
@@ -17,8 +16,7 @@ from alchemical_storage.visitor import StatementVisitor, T
 
 
 class FilterMap(StatementVisitor):
-    """
-    Initialize the filter mapper
+    """Initialize the filter mapper.
 
     Args:
         filters (dict[str, Any]): A dictionary of filters
@@ -59,9 +57,9 @@ class FilterMap(StatementVisitor):
             self.filters[filter_] = functools.partial(op_, get_by)
 
     def visit_statement(self, statement: T, params: dict[str, Any]):
-        """
-        Apply filters to an sqlalchemy query. Each key in ``params`` corresponds to a filter
-        in ``self.filters``. If the key is not in ``self.filters``, it is ignored.
+        """Apply filters to an sqlalchemy query. Each key in ``params``
+        corresponds to a filter in ``self.filters``. If the key is not in
+        ``self.filters``, it is ignored.
 
         Args:
             statement (T): The sqlalchemy statement to apply filters to
@@ -86,8 +84,8 @@ class FilterMap(StatementVisitor):
 
 
 class OrderByMap(StatementVisitor):
-    """
-    A mapper to convert order_by attributes to sqlalchemy order_by expressions
+    """A mapper to convert order_by attributes to sqlalchemy order_by
+    expressions.
 
     Args:
         order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
@@ -118,8 +116,8 @@ class OrderByMap(StatementVisitor):
             self.order_by_attributes[attr] = order_by
 
     def visit_statement(self, statement, params: dict[str, Any]):
-        """
-        Apply order_by to an sqlalchemy query. Ignores order_by if not given in params.
+        """Apply order_by to an sqlalchemy query. Ignores order_by if not given
+        in params.
 
         Args:
             statement (T): The sqlalchemy statement to apply order_by to

@@ -1,4 +1,4 @@
-"""Test the join module"""
+"""Test the join module."""
 from unittest.mock import Mock, call
 
 import pytest
@@ -14,12 +14,12 @@ from tests.models import Model, OtherRelatedToModel, RelatedToModel
 
 @pytest.fixture(scope="function")
 def mock_sql_statement(mocker: pytest_mock.MockerFixture):
-    """Mock the sqlalchemy statement"""
+    """Mock the sqlalchemy statement."""
     return mocker.Mock(spec=sqlalchemy.Select)
 
 
 class TestJoinVisitor:
-    """Test the JoinVisitor class"""
+    """Test the JoinVisitor class."""
 
     @pytest.mark.parametrize(
         "param_names,joins,expected_call_args_list",
@@ -73,7 +73,7 @@ class TestJoinVisitor:
     def test_visit_statement_using_string_imports(
         self, mock_sql_statement: Mock, param_names, joins, expected_call_args_list
     ):
-        """Test joining a model"""
+        """Test joining a model."""
         mock_sql_statement.join.return_value = mock_sql_statement
         join_visitor = JoinMap("tests.models", param_names, *joins)
         join_visitor.visit_statement(mock_sql_statement, {"join_param": "join_param"})
@@ -126,7 +126,7 @@ class TestJoinVisitor:
     def test_visit_statement_using_classes(
         self, mock_sql_statement: Mock, param_names, joins, expected_call_args_list
     ):
-        """Test joining a model"""
+        """Test joining a model."""
         mock_sql_statement.join.return_value = mock_sql_statement
         join_visitor = JoinMap("tests.models", param_names, *joins)
         join_visitor.visit_statement(mock_sql_statement, {"join_param": "join_param"})
@@ -139,7 +139,7 @@ class TestJoinVisitor:
         self,
         mock_sql_statement: Mock,
     ):
-        """Test joining a model"""
+        """Test joining a model."""
         expected = Model.related.and_(RelatedToModel.attr > 1)
         join_visitor = JoinMap("tests.models", ("join_param",), (expected,))
         join_visitor.visit_statement(mock_sql_statement, {"join_param": "join_param"})
@@ -150,7 +150,7 @@ class TestJoinVisitor:
         self,
         mock_sql_statement: Mock,
     ):
-        """Test joining a model"""
+        """Test joining a model."""
         expected = (
             RelatedToModel,
             RelatedToModel.model_id == Model.attr,

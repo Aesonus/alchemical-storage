@@ -1,4 +1,4 @@
-"""Module defining storage services"""
+"""Module defining storage services."""
 
 import abc
 import functools
@@ -16,12 +16,11 @@ AlchemyModel = TypeVar("AlchemyModel", bound=DeclarativeBase)
 
 
 class StorageABC(abc.ABC, Generic[AlchemyModel]):
-    """Resource storage protocol"""
+    """Resource storage protocol."""
 
     @abc.abstractmethod
     def get(self, identity: Any) -> AlchemyModel:
-        """
-        Get a resource from storage
+        """Get a resource from storage.
 
         Args:
             identity (Any): The description
@@ -32,8 +31,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
     @abc.abstractmethod
     def index(self, **kwargs) -> list[AlchemyModel]:
-        """
-        Get a list resources from storage
+        """Get a list resources from storage.
 
         Returns:
             list[AlchemyModel]: List of objects that can be serialized to output for api
@@ -41,8 +39,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
     @abc.abstractmethod
     def count_index(self, **kwargs) -> int:
-        """
-        Get a list resources from storage
+        """Get a list resources from storage.
 
         Returns:
             int: Count of objects in given set
@@ -50,8 +47,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
     @abc.abstractmethod
     def put(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
-        """
-        Put a new resource to storage
+        """Put a new resource to storage.
 
         Args:
             identity (Any): The resource identifier
@@ -63,8 +59,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
     @abc.abstractmethod
     def patch(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
-        """
-        Update a resource in storage
+        """Update a resource in storage.
 
         Args:
             identity (Any): The resource identifier
@@ -76,8 +71,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
     @abc.abstractmethod
     def delete(self, identity: Any) -> AlchemyModel:
-        """
-        Delete a resource from storage
+        """Delete a resource from storage.
 
         Args:
             identity (Any): The resource identifier
@@ -88,8 +82,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
     @abc.abstractmethod
     def __contains__(self, identity: Any) -> bool:
-        """
-        Checks if resource identified by identity eAny
+        """Checks if resource identified by identity eAny.
 
         Args:
             identity (Any): The resource identifier
@@ -100,8 +93,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
 
 class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
-    """
-    SQLAlchemy model storage in sql database
+    """SQLAlchemy model storage in sql database.
 
     Args:
         session (Session): The SQLAlchemy session to use for database operations
@@ -136,10 +128,8 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
 
     @staticmethod
     def _convert_identity(func):
-        """
-        Ensures that the identity of the resource is passed to
-        the decorated function as a tuple
-        """
+        """Ensures that the identity of the resource is passed to the decorated
+        function as a tuple."""
 
         @functools.wraps(func)
         def decorator(*args, **kwargs):
