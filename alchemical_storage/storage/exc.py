@@ -1,9 +1,9 @@
-"""Exceptions for alchemical_storage"""
+"""Exceptions for alchemical_storage."""
 
 
 class ConflictError(Exception):
-    """Conflict error"""
+    """Conflict error."""
 
 
 class NotFoundError(Exception):
-    """Not found error"""
+    """Not found error."""
