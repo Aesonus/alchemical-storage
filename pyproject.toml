@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alchemical-storage"
-version = "1.0.0-dev2"
+version = "1.0.0"
 description = "Storage based off of sqlalchemy_marshmallow"
 authors = ["Cory Laughlin <corylcomposinger@gmail.com>"]
 license = "MIT"
@@ -10,11 +10,11 @@ packages = [{include = "alchemical_storage"}]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 sqlalchemy = "^2.0.19"
-marshmallow-sqlalchemy = "^0.29.0"
+marshmallow-sqlalchemy = ">0.29.0,<2.0"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
+pytest = "^8.0.0"
 mypy = "^1.5.0"
 pytest-cov = "^4.1.0"
 pytest-mock = "^3.11.1"
@@ -30,6 +30,9 @@ pre-commit = "^3.6.0"
 [tool.poetry.group.doc.dependencies]
 sphinx = "^7.2.3"
 m2r2 = "^0.3.3.post2"
+
+[tool.pyproject-version]
+files = ["alchemical_storage/__init__.py"]
 
 [build-system]
 requires = ["poetry-core"]
