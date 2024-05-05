@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alchemical-storage"
-version = "1.0.0-dev2"
+version = "1.0.0"
 description = "Storage based off of sqlalchemy_marshmallow"
 authors = ["Cory Laughlin <corylcomposinger@gmail.com>"]
 license = "MIT"
