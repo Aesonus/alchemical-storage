@@ -10,7 +10,7 @@ packages = [{include = "alchemical_storage"}]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 sqlalchemy = "^2.0.19"
-marshmallow-sqlalchemy = ">0.29.0,<2.0"
+marshmallow-sqlalchemy = ">=0.28.0,<2.0"
 
 
 [tool.poetry.group.dev.dependencies]
