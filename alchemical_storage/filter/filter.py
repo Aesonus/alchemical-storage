@@ -23,7 +23,7 @@ class FilterMap(StatementVisitor):
         import_from (str): The module to import Model classes from
 
     Example:
-        ::
+        .. code-block:: python
 
             filter_visitor = FilterMap({
                 "game_type": 'Game.type',
@@ -33,8 +33,8 @@ class FilterMap(StatementVisitor):
 
 
     Note:
-        + May use sqlalchemy's `sqlalchemy.sql.operators` for the operator.
-        + The `your_models_module.models` is the module where the models are defined.
+        + May use sqlalchemy's ``sqlalchemy.sql.operators`` for the operator.
+        + The ``your_models_module.models`` is the module where the models are defined.
     """
 
     filters: dict[str, Callable]
@@ -93,7 +93,7 @@ class OrderByMap(StatementVisitor):
         import_from (str): The module to import Model classes from
 
     Example:
-        ::
+        .. code-block:: python
 
             order_by_visitor = OrderByMap({
                 "game_type": 'Game.type',
@@ -116,15 +116,15 @@ class OrderByMap(StatementVisitor):
             self.order_by_attributes[attr] = order_by
 
     def visit_statement(self, statement, params: dict[str, Any]):
-        """Apply order_by to an sqlalchemy query. Ignores order_by if not given
-        in params.
+        """Apply order_by to an sqlalchemy query. Ignored if ``order_by`` key is not in
+        ``params``.
 
         Args:
             statement (T): The sqlalchemy statement to apply order_by to
             params (dict[str, Any]): The filters to apply
 
         Returns:
-            (T): The order_by sqlalchemy statement
+            T: The order_by sqlalchemy statement
         """
         if "order_by" not in params:
             return statement

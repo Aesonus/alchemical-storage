@@ -19,7 +19,7 @@ class JoinMap(StatementVisitor):
         *joins (str | tuple[Any, ...]): The joins to add to the query.
 
     Example:
-        ::
+        .. code-block:: python
 
             from alchemical_storage.join import JoinMap
             from tests.models import Model, RelatedToModel
