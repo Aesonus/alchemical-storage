@@ -89,7 +89,8 @@ class OrderByMap(StatementVisitor):
 
     Args:
         order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
-            the key is the attribute name and the value is the column or label to order by.
+            the key is the attribute name and the value is the column or label to order
+            by.
         import_from (str): The module to import Model classes from
 
     Example:

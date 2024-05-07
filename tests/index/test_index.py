@@ -4,8 +4,8 @@ from sqlalchemy import orm
 from sqlalchemy.sql.elements import ColumnElement
 
 from alchemical_storage.filter import FilterMap, OrderByMap
-from alchemical_storage.index.index import DatabaseIndex
 from alchemical_storage.join import JoinMap
+from alchemical_storage.storage.index import DatabaseIndex
 from tests import models
 
 
@@ -125,7 +125,7 @@ class TestEntityIsModel:
         self, database_index: DatabaseIndex[models.Model], filters, expected_count
     ):
         # I know entity is not a tuple, so I don't need to test for that in the key.
-        assert database_index.count(**filters) == expected_count
+        assert database_index.count_index(**filters) == expected_count
 
 
 class TestEntityIsTupleOfColumns:
@@ -217,4 +217,4 @@ class TestEntityIsTupleOfColumns:
     def test_database_index_count_returns_count_of_models(
         self, database_index: DatabaseIndex[models.Model], filters, expected_count
     ):
-        assert database_index.count(**filters) == expected_count
+        assert database_index.count_index(**filters) == expected_count

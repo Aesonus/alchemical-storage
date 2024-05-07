@@ -1,7 +1,7 @@
 # Quickstart
 
 
-__alchemical-storage__ is a library intended to bridge CRUD operations with SQLAlchemy query constructs
+__alchemical-storage__ is a package intended to bridge CRUD operations with SQLAlchemy query constructs
 
 ## Install
 ```pip install alchemical-storage```

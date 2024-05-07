@@ -39,10 +39,8 @@ class DatabaseIndex(Generic[EntityType]):
             return [*self.session.execute(stmt).unique().all()]
         return [*self.session.execute(stmt).unique().scalars().all()]
 
-    def count(self, **kwargs) -> int:
+    def count_index(self, **kwargs) -> int:
         """Count resources in storage."""
-        # pylint: disable=not-callable
-
         stmt = sql.select(sql.func.count(self._count_key(self.entity)))
         for visitor in self._statement_visitors:
             stmt = visitor.visit_statement(stmt, kwargs)
