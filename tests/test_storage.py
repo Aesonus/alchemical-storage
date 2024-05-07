@@ -1,4 +1,5 @@
 """Test the database storage class."""
+
 import pytest
 import sqlalchemy as sa
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
@@ -84,8 +85,7 @@ class TestDatabaseStorageWithSinglePk:
     def model_storage(
         self, session, model_schema, joins, entity_filters, entity_order_by
     ):
-        """Create DatabaseStorage instance for a model with single primary
-        key."""
+        """Create DatabaseStorage instance for a model with single primary key."""
         return DatabaseStorage(
             session,
             models.Model,
@@ -259,8 +259,7 @@ class TestDatabaseStorageWithCompositePk:
 
     @pytest.fixture
     def model_storage(self, session, model_schema, entity_filters, entity_order_by):
-        """Create DatabaseStorage instance for a model with composite primary
-        key."""
+        """Create DatabaseStorage instance for a model with composite primary key."""
         return DatabaseStorage(
             session,
             models.CompositePkModel,

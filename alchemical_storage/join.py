@@ -27,6 +27,7 @@ class JoinMap(StatementVisitor):
             join_map = JoinMap(
                 'tests.models', ('join_param', ), ('RelatedToModel', )
             )
+
     """
 
     joins: tuple[tuple[Any, ...], ...]

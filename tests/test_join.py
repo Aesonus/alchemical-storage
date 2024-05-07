@@ -1,4 +1,5 @@
 """Test the join module."""
+
 from unittest.mock import Mock, call
 
 import pytest

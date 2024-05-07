@@ -1,6 +1,5 @@
-"""Build upon the ``alchemical_storage.visitor`` module to create a classes
-that can be used to map filters and order_by attributes to sqlalchemy
-statements."""
+"""Build upon the ``alchemical_storage.visitor`` module to create a classes that can be
+used to map filters and order_by attributes to sqlalchemy statements."""
 
 import functools
 import importlib
@@ -35,6 +34,7 @@ class FilterMap(StatementVisitor):
     Note:
         + May use sqlalchemy's ``sqlalchemy.sql.operators`` for the operator.
         + The ``your_models_module.models`` is the module where the models are defined.
+
     """
 
     filters: dict[str, Callable]
@@ -57,9 +57,9 @@ class FilterMap(StatementVisitor):
             self.filters[filter_] = functools.partial(op_, get_by)
 
     def visit_statement(self, statement: T, params: dict[str, Any]):
-        """Apply filters to an sqlalchemy query. Each key in ``params``
-        corresponds to a filter in ``self.filters``. If the key is not in
-        ``self.filters``, it is ignored.
+        """Apply filters to an sqlalchemy query. Each key in ``params`` corresponds to a
+        filter in ``self.filters``. If the key is not in ``self.filters``, it is
+        ignored.
 
         Args:
             statement (T): The sqlalchemy statement to apply filters to
@@ -72,6 +72,7 @@ class FilterMap(StatementVisitor):
             Type "T" is a generic type that can be either a ``sqlalchemy.sql.Select`` or
             ``sqlalchemy.sql.ColumnElement``. This is because the visitor can be used
             on both select statements and column elements.
+
         """
         return statement.where(*self._generate_whereclauses(params))
 
@@ -84,8 +85,7 @@ class FilterMap(StatementVisitor):
 
 
 class OrderByMap(StatementVisitor):
-    """A mapper to convert order_by attributes to sqlalchemy order_by
-    expressions.
+    """A mapper to convert order_by attributes to sqlalchemy order_by expressions.
 
     Args:
         order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
@@ -99,6 +99,7 @@ class OrderByMap(StatementVisitor):
                 "game_type": 'Game.type',
                 "player_on": 'Game.played_on',
             }, 'your_models_module.models')
+
     """
 
     order_by_attributes: dict[str, Any]
@@ -125,6 +126,7 @@ class OrderByMap(StatementVisitor):
 
         Returns:
             T: The order_by sqlalchemy statement
+
         """
         if "order_by" not in params:
             return statement

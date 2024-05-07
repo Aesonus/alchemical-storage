@@ -27,6 +27,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             AlchemyModel: Object that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -35,6 +36,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             list[AlchemyModel]: List of objects that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -43,6 +45,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             int: Count of objects in given set
+
         """
 
     @abc.abstractmethod
@@ -55,6 +58,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             AlchemyModel: Object that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -67,6 +71,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             AlchemyModel: Object that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -78,6 +83,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             AlchemyModel: Object that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -89,6 +95,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             bool: Whether the resource exists
+
         """
 
 
@@ -103,6 +110,7 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
             "slug")
         statement_visitors (Optional[list[StatementVisitor]]): List of statement visitors to apply
             to all statements
+
     """
 
     session: Session
@@ -128,8 +136,8 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
 
     @staticmethod
     def _convert_identity(func):
-        """Ensures that the identity of the resource is passed to the decorated
-        function as a tuple."""
+        """Ensures that the identity of the resource is passed to the decorated function
+        as a tuple."""
 
         @functools.wraps(func)
         def decorator(*args, **kwargs):

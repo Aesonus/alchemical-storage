@@ -68,8 +68,7 @@ def existing_models():
 class TestEntityIsModel:
     @pytest.fixture
     def database_index(self, session, joins, entity_filters, entity_order_by):
-        """Create DatabaseStorage instance for a model with single primary
-        key."""
+        """Create DatabaseStorage instance for a model with single primary key."""
         return DatabaseIndex(
             session,
             models.Model,
@@ -132,8 +131,7 @@ class TestEntityIsModel:
 class TestEntityIsTupleOfColumns:
     @pytest.fixture
     def database_index(self, session, joins, entity_filters, entity_order_by):
-        """Create DatabaseStorage instance for a model with single primary
-        key."""
+        """Create DatabaseStorage instance for a model with single primary key."""
         return DatabaseIndex(
             session,
             (models.Model.attr, models.Model.attr2, models.Model.attr3),

@@ -1,4 +1,5 @@
 """SQLAlchemy models for tests."""
+
 import sqlalchemy as sqla
 from sqlalchemy import orm
 
