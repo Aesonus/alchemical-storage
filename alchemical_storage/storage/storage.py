@@ -8,6 +8,7 @@ import sqlalchemy as sql
 from marshmallow_sqlalchemy import SQLAlchemySchema
 from sqlalchemy.orm import DeclarativeBase, Session
 
+from alchemical_storage.storage.index import DatabaseIndex
 from alchemical_storage.visitor import StatementVisitor
 
 from .exc import ConflictError, NotFoundError
@@ -27,6 +28,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             AlchemyModel: Object that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -35,6 +37,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             list[AlchemyModel]: List of objects that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -43,6 +46,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             int: Count of objects in given set
+
         """
 
     @abc.abstractmethod
@@ -55,6 +59,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             AlchemyModel: Object that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -67,6 +72,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             AlchemyModel: Object that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -78,6 +84,7 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             AlchemyModel: Object that can be serialized to output for api
+
         """
 
     @abc.abstractmethod
@@ -89,20 +96,23 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 
         Returns:
             bool: Whether the resource exists
+
         """
 
 
-class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
+class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
     """SQLAlchemy model storage in sql database.
 
     Args:
         session (Session): The SQLAlchemy session to use for database operations
         entity (Type[AlchemyModel]): The SQLAlchemy model to use for database operations
-        storage_schema (SQLAlchemySchema): The marshmallow schema to use for serialization
-        primary_key (str|Sequence[str]): The primary key of the entity (Optional, defaults to
-            "slug")
-        statement_visitors (Optional[list[StatementVisitor]]): List of statement visitors to apply
-            to all statements
+        storage_schema (SQLAlchemySchema): The marshmallow schema to use for
+            serialization
+        primary_key (str|Sequence[str]): The primary key of the entity (Optional,
+            defaults to "slug")
+        statement_visitors (Optional[list[StatementVisitor]]): List of statement
+            visitors to apply to all statements
+
     """
 
     session: Session
@@ -125,11 +135,18 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
             self._attr = [primary_key]
         else:
             self._attr = list(primary_key)
+        DatabaseIndex.__init__(
+            self,
+            session,
+            entity,
+            lambda entity: getattr(entity, self._attr[0]),
+            statement_visitors=statement_visitors,
+        )
 
     @staticmethod
     def _convert_identity(func):
-        """Ensures that the identity of the resource is passed to the decorated
-        function as a tuple."""
+        """Ensures that the identity of the resource is passed to the decorated function
+        as a tuple."""
 
         @functools.wraps(func)
         def decorator(*args, **kwargs):
@@ -160,19 +177,10 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
         raise NotFoundError
 
     def index(self, page_params=None, **kwargs) -> list[AlchemyModel]:
-        stmt = sql.select(self.entity)
-        for visitor in self._statement_visitors:
-            stmt = visitor.visit_statement(stmt, kwargs)
-        if page_params:
-            stmt = stmt.limit(page_params.page_size).offset(page_params.first_item)
-        return [*self.session.execute(stmt).unique().scalars().all()]
+        return DatabaseIndex.get(self, page_params, **kwargs)
 
     def count_index(self, **kwargs) -> int:
-        # pylint: disable=not-callable
-        stmt = sql.select(sql.func.count(getattr(self.entity, self._attr[0])))
-        for visitor in self._statement_visitors:
-            stmt = visitor.visit_statement(stmt, kwargs)
-        return self.session.execute(stmt).unique().scalar_one()
+        return DatabaseIndex.count_index(self, **kwargs)
 
     @_convert_identity
     def put(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
@@ -203,11 +211,7 @@ class DatabaseStorage(StorageABC, Generic[AlchemyModel]):
     @_convert_identity
     def __contains__(self, identity: Any) -> bool:
         if result := self.session.execute(
-            sql.select(
-                sql.func.count(  # pylint: disable=not-callable
-                    getattr(self.entity, self._attr[0])
-                )
-            ).where(
+            sql.select(sql.func.count(getattr(self.entity, self._attr[0]))).where(
                 *(
                     getattr(self.entity, _attr) == id
                     for _attr, id in zip(self._attr, identity)

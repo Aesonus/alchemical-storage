@@ -65,8 +65,7 @@ class TestFilterMap:
         expected_right_value_list,
         given_filters,
     ):
-        """Test that the filter class appends where clauses for given
-        filters."""
+        """Test that the filter class appends where clauses for given filters."""
         filter_instance = FilterMap(
             {
                 "filter_name": "Model.attr",
@@ -92,8 +91,8 @@ class TestOrderByMap:
     """Test the OrderByMap class."""
 
     def test_init_raises_exception_for_invalid_order_by(self):
-        """Test that the order by map class raises an attribute exception for
-        invalid class or class attribute."""
+        """Test that the order by map class raises an attribute exception for invalid
+        class or class attribute."""
         with pytest.raises(AttributeError):
             OrderByMap({"order_by_name": "Model.bad"}, "tests.models")
 
@@ -101,8 +100,8 @@ class TestOrderByMap:
         self,
         mock_sql_statement: Mock,
     ):
-        """Test that the order by map class appends order by clauses for given
-        order by."""
+        """Test that the order by map class appends order by clauses for given order
+        by."""
         # pylint: disable=comparison-with-callable
 
         order_by_instance = OrderByMap(
@@ -126,8 +125,8 @@ class TestOrderByMap:
         self,
         mock_sql_statement: Mock,
     ):
-        """Test that the order by map class appends order by clauses for given
-        order by with label."""
+        """Test that the order by map class appends order by clauses for given order by
+        with label."""
         # pylint: disable=comparison-with-callable
 
         order_by_instance = OrderByMap(
@@ -157,8 +156,8 @@ class TestOrderByMap:
         self,
         mock_sql_statement: Mock,
     ):
-        """Test that the order by map class appends order by clauses for given
-        order by with label and attr."""
+        """Test that the order by map class appends order by clauses for given order by
+        with label and attr."""
         # pylint: disable=comparison-with-callable
 
         order_by_instance = OrderByMap(
@@ -182,8 +181,8 @@ class TestOrderByMap:
         self,
         mock_sql_statement: Mock,
     ):
-        """Test that the order by map class raises an exception when the order
-        by query param is invalid."""
+        """Test that the order by map class raises an exception when the order by query
+        param is invalid."""
         order_by_instance = OrderByMap(
             {
                 "order_by_name": "Model.attr",
