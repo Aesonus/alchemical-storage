@@ -7,7 +7,7 @@ import pytest_mock
 import sqlalchemy
 
 from alchemical_storage.join import JoinMap
-from tests import _dict_to_params
+from tests import dict_to_params
 from tests.models import Model, OtherRelatedToModel, RelatedToModel
 
 # pylint: disable=too-few-public-methods,redefined-outer-name
@@ -24,7 +24,7 @@ class TestJoinVisitor:
 
     @pytest.mark.parametrize(
         "param_names,joins,expected_call_args_list",
-        **_dict_to_params(
+        **dict_to_params(
             {
                 "one join": (
                     ("join_param",),
@@ -86,7 +86,7 @@ class TestJoinVisitor:
     # Test the same thing as above, but using the actual classes instead of strings
     @pytest.mark.parametrize(
         "param_names,joins,expected_call_args_list",
-        **_dict_to_params(
+        **dict_to_params(
             {
                 "one join": (("join_param",), [(RelatedToModel,)], [(RelatedToModel,)]),
                 "one join with on": (

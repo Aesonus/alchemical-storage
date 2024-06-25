@@ -1,7 +1,7 @@
 from typing import Any
 
 
-def _dict_to_params(
+def dict_to_params(
     test_cases: dict[str, Any],
 ):
     args = {
