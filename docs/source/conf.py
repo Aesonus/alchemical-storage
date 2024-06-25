@@ -6,15 +6,15 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-# pylint: disable=all
-
 import os
 import sys
+
+import alchemical_storage
 
 project = "Alchemical Storage"
 copyright = "2023, Cory Laughlin (Aesonus)"
 author = "Cory Laughlin (Aesonus)"
-release = "1.x"
+release = alchemical_storage.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
