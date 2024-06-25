@@ -12,6 +12,8 @@ from sqlalchemy.sql.operators import desc_op
 
 from alchemical_storage.filter import FilterMap, OrderByMap
 from alchemical_storage.filter.exc import OrderByException
+from alchemical_storage.filter.filter import NullFilterMap
+from tests import dict_to_params
 
 from .models import Model
 
@@ -196,3 +198,81 @@ class TestOrderByMap:
             order_by_instance.visit_statement(
                 mock_sql_statement, {"order_by": "order_by_name,invalid_param"}
             )
+
+
+class TestNullFilterMap:
+    """Test the NullFilterMap class."""
+
+    @pytest.mark.parametrize(
+        "given_filters,compare",
+        **dict_to_params(
+            {
+                "filter_name is null": (
+                    {"filter_name": "null"},
+                    [(Model.attr, "is_")],
+                ),
+                "filter_name is not null": (
+                    {"filter_name": "not-null"},
+                    [(Model.attr, "is_not")],
+                ),
+                "filter_name is null, filter_name2 is not null": (
+                    {"filter_name": "null", "filter_name2": "not-null"},
+                    [(Model.attr, "is_"), (Model.attr2, "is_not")],
+                ),
+            }
+        )
+    )
+    def test_visit_statement_appends_where_clauses_for_given_filters(
+        self, mock_sql_statement: Mock, given_filters, compare
+    ):
+        """Test that the filter class appends where clauses for given filters."""
+        filter_instance = NullFilterMap(
+            {
+                "filter_name": "Model.attr",
+                "filter_name2": "Model.attr2",
+            },
+            "tests.models",
+        )
+        filter_instance.visit_statement(mock_sql_statement, given_filters)
+        for actual, expected in zip(mock_sql_statement.where.call_args.args, compare):
+            assert isinstance(actual, BinaryExpression)
+            assert actual.left == expected[0]
+            assert actual.operator.__name__ == expected[1]
+            assert str(actual.right) == "NULL"
+
+    def test_visit_statement_raises_exception_when_query_param_value_is_invalid(
+        self,
+        mock_sql_statement: Mock,
+    ):
+        """Test that the null filter map class raises an exception when the query param
+        value is invalid."""
+        filter_instance = NullFilterMap(
+            {
+                "filter_name": "Model.attr",
+                "filter_name2": "Model.attr2",
+            },
+            "tests.models",
+        )
+        with pytest.raises(
+            ValueError,
+            match="^(Unknown filter value: 'unknown_value' for `filter_name`)$",
+        ):
+            filter_instance.visit_statement(
+                mock_sql_statement, {"filter_name": "unknown_value"}
+            )
+
+    def test_visit_statement_does_nothing_if_filter_is_not_in_filters(
+        self,
+        mock_sql_statement: Mock,
+    ):
+        """Test that the null filter map class does nothing if the filter is not in the
+        filters."""
+        filter_instance = NullFilterMap(
+            {
+                "filter_name": "Model.attr",
+                "filter_name2": "Model.attr2",
+            },
+            "tests.models",
+        )
+        filter_instance.visit_statement(mock_sql_statement, {"filter_name3": "null"})
+        mock_sql_statement.where.assert_called_once_with()
