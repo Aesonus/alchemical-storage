@@ -176,8 +176,8 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
             return model
         raise NotFoundError
 
-    def index(self, page_params=None, **kwargs) -> list[AlchemyModel]:
-        return DatabaseIndex.get(self, page_params, **kwargs)
+    def index(self, **kwargs) -> list[AlchemyModel]:
+        return DatabaseIndex.get(self, **kwargs)
 
     def count_index(self, **kwargs) -> int:
         return DatabaseIndex.count_index(self, **kwargs)

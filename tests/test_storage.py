@@ -180,17 +180,6 @@ class TestDatabaseStorageWithSinglePk:
         actual = model_storage.index()
         assert actual == [existing_models[0], existing_models[1]]
 
-    def test_model_storage_index_returns_list_of_models_with_pagination(
-        self, model_storage: DatabaseStorage[models.Model], existing_models
-    ):
-        """Test that index returns list of models with pagination."""
-        assert (
-            model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
-        )
-        assert model_storage.index(page_params=models.PageParams(5, 1)) == [
-            existing_models[1]
-        ]
-
     def test_model_storage_index_returns_ordered_list_of_models(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
@@ -358,17 +347,6 @@ class TestDatabaseStorageWithCompositePk:
         assert model_storage.index(order_by="attr,-attr2") == list(
             reversed(existing_models)
         )
-
-    def test_model_storage_index_returns_list_of_models_with_pagination(
-        self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
-    ):
-        """Test that index returns list of models with pagination."""
-        assert (
-            model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
-        )
-        assert model_storage.index(page_params=models.PageParams(5, 1)) == [
-            existing_models[1]
-        ]
 
     @pytest.mark.parametrize(
         "filters, expected_count",
