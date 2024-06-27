@@ -8,7 +8,7 @@ from typing import Any, Callable, Generator
 
 from sqlalchemy.sql.expression import desc
 
-from alchemical_storage.filter.exc import OrderByException
+from alchemical_storage.filter.exc import NullFilterException, OrderByException
 from alchemical_storage.visitor import StatementVisitor, T
 
 # pylint: disable=too-few-public-methods
@@ -202,6 +202,6 @@ class NullFilterMap(StatementVisitor):
                 elif filtered_by == not_null:
                     yield self.filters[attr].isnot(None)
                 else:
-                    raise ValueError(
+                    raise NullFilterException(
                         f"Unknown filter value: '{filtered_by}' for `{attr}`"
                     )
