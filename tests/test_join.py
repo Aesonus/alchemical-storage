@@ -3,20 +3,12 @@
 from unittest.mock import Mock, call
 
 import pytest
-import pytest_mock
-import sqlalchemy
 
 from alchemical_storage.join import JoinMap
 from tests import dict_to_params
 from tests.models import Model, OtherRelatedToModel, RelatedToModel
 
 # pylint: disable=too-few-public-methods,redefined-outer-name
-
-
-@pytest.fixture(scope="function")
-def mock_sql_statement(mocker: pytest_mock.MockerFixture):
-    """Mock the sqlalchemy statement."""
-    return mocker.Mock(spec=sqlalchemy.Select)
 
 
 class TestJoinVisitor:

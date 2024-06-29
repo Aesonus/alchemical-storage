@@ -30,10 +30,8 @@ class FilterMap(StatementVisitor):
                 "ending_at": ('Game.played_on', operator.le,),
             }, 'your_models_module.models')
 
-
-    Note:
-        + May use sqlalchemy's ``sqlalchemy.sql.operators`` for the operator.
-        + The ``your_models_module.models`` is the module where the models are defined.
+    See Also:
+        :ref:`Usage Guide for FilterMap <UsingFilterMap>`
 
     """
 
@@ -166,6 +164,9 @@ class NullFilterMap(StatementVisitor):
             null_filter_visitor = NullFilterMap({
                 "deleted_at": 'Game.deleted_at',
             }, 'your_models_module.models')
+
+    See Also:
+        :ref:`Usage Guide for NullFilterMap <UsingNullFilterMap>`
 
     """
 

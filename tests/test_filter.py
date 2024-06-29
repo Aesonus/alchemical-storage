@@ -4,26 +4,18 @@ import operator
 from unittest.mock import Mock
 
 import pytest
-import pytest_mock
-import sqlalchemy
 from sqlalchemy import BinaryExpression, UnaryExpression
 from sqlalchemy.sql.elements import _textual_label_reference
 from sqlalchemy.sql.operators import desc_op
 
 from alchemical_storage.filter import FilterMap, OrderByMap
-from alchemical_storage.filter.exc import OrderByException
+from alchemical_storage.filter.exc import NullFilterException, OrderByException
 from alchemical_storage.filter.filter import NullFilterMap
 from tests import dict_to_params
 
 from .models import Model
 
 # pylint: disable=too-few-public-methods,redefined-outer-name
-
-
-@pytest.fixture(scope="function")
-def mock_sql_statement(mocker: pytest_mock.MockerFixture):
-    """Mock the sqlalchemy statement."""
-    return mocker.Mock(spec=sqlalchemy.Select)
 
 
 class TestFilterMap:
@@ -254,7 +246,7 @@ class TestNullFilterMap:
             "tests.models",
         )
         with pytest.raises(
-            ValueError,
+            NullFilterException,
             match="^(Unknown filter value: 'unknown_value' for `filter_name`)$",
         ):
             filter_instance.visit_statement(
