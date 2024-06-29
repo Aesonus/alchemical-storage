@@ -195,11 +195,11 @@ class TestDatabaseStorageWithSinglePk:
             ({"related_attr": 1}, 1),
         ],
     )
-    def test_model_storage_count_index_returns_count_of_models(
+    def test_model_storage_count_returns_count_of_models(
         self, model_storage: DatabaseStorage[models.Model], filters, expected_count
     ):
         """Test that count_index returns count of models."""
-        assert model_storage.count_index(**filters) == expected_count
+        assert model_storage.count(**filters) == expected_count
 
 
 class TestDatabaseStorageWithCompositePk:
@@ -356,11 +356,11 @@ class TestDatabaseStorageWithCompositePk:
             ({"attr3_like": "%test%"}, 2),
         ],
     )
-    def test_model_storage_count_index_returns_count_of_models(
+    def test_model_storage_count_returns_count_of_models(
         self,
         model_storage: DatabaseStorage[models.CompositePkModel],
         filters,
         expected_count,
     ):
         """Test that count_index returns count of models."""
-        assert model_storage.count_index(**filters) == expected_count
+        assert model_storage.count(**filters) == expected_count

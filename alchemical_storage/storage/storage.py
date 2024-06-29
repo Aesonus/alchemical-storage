@@ -7,6 +7,7 @@ from typing import Any, Generic, Iterable, Optional, Sequence, Type, TypeVar
 import sqlalchemy as sql
 from marshmallow_sqlalchemy import SQLAlchemySchema
 from sqlalchemy.orm import DeclarativeBase, Session
+from typing_extensions import deprecated
 
 from alchemical_storage.storage.index import DatabaseIndex
 from alchemical_storage.visitor import StatementVisitor
@@ -41,11 +42,11 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
         """
 
     @abc.abstractmethod
-    def count_index(self, **kwargs) -> int:
-        """Get a list resources from storage.
+    def count(self, **kwargs) -> int:
+        """Count resources in storage.
 
         Returns:
-            int: Count of objects in given set
+            int: Count of objects
 
         """
 
@@ -179,8 +180,12 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
     def index(self, **kwargs) -> list[AlchemyModel]:
         return DatabaseIndex.get(self, **kwargs)
 
+    @deprecated("Use count instead.")
     def count_index(self, **kwargs) -> int:
-        return DatabaseIndex.count_index(self, **kwargs)
+        return DatabaseIndex.count(self, **kwargs)
+
+    def count(self, **kwargs) -> int:
+        return DatabaseIndex.count(self, **kwargs)
 
     @_convert_identity
     def put(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
