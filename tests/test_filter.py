@@ -8,6 +8,7 @@ from sqlalchemy import BinaryExpression, UnaryExpression
 from sqlalchemy.sql.elements import _textual_label_reference
 from sqlalchemy.sql.operators import desc_op
 
+import tests.models
 from alchemical_storage.filter import FilterMap, OrderByMap
 from alchemical_storage.filter.exc import NullFilterException, OrderByException
 from alchemical_storage.filter.filter import NullFilterMap
@@ -18,10 +19,18 @@ from .models import Model
 # pylint: disable=too-few-public-methods,redefined-outer-name
 
 
+@pytest.mark.parametrize(
+    "import_from",
+    [
+        "tests.models",
+        tests.models,
+    ],
+    ids=["string", "module"],
+)
 class TestFilterMap:
     """Test the FilterMap class."""
 
-    def test_init_initializes_filter_expressions(self):
+    def test_init_initializes_filter_expressions(self, import_from):
         """Test the filter class."""
         filter_instance = FilterMap(
             {
@@ -31,7 +40,7 @@ class TestFilterMap:
                     operator.ge,
                 ),
             },
-            "tests.models",
+            import_from,
         )
         # pylint: disable=comparison-with-callable
         assert filter_instance.filters["filter_name"].func == operator.eq
@@ -58,6 +67,7 @@ class TestFilterMap:
         expected_left_list,
         expected_right_value_list,
         given_filters,
+        import_from,
     ):
         """Test that the filter class appends where clauses for given filters."""
         filter_instance = FilterMap(
@@ -68,7 +78,7 @@ class TestFilterMap:
                     operator.ge,
                 ),
             },
-            "tests.models",
+            import_from,
         )
         filter_instance.visit_statement(mock_sql_statement, given_filters)
         for actual, expected_left, expected_right_value in zip(
@@ -81,18 +91,25 @@ class TestFilterMap:
             assert actual.right.value == expected_right_value
 
 
+@pytest.mark.parametrize(
+    "import_from",
+    [
+        "tests.models",
+        tests.models,
+    ],
+    ids=["string", "module"],
+)
 class TestOrderByMap:
     """Test the OrderByMap class."""
 
-    def test_init_raises_exception_for_invalid_order_by(self):
+    def test_init_raises_exception_for_invalid_order_by(self, import_from):
         """Test that the order by map class raises an attribute exception for invalid
         class or class attribute."""
         with pytest.raises(AttributeError):
             OrderByMap({"order_by_name": "Model.bad"}, "tests.models")
 
     def test_visit_statement_appends_order_by_clauses_for_given_order_by(
-        self,
-        mock_sql_statement: Mock,
+        self, mock_sql_statement: Mock, import_from
     ):
         """Test that the order by map class appends order by clauses for given order
         by."""
@@ -103,7 +120,7 @@ class TestOrderByMap:
                 "order_by_name": "Model.attr",
                 "order_by_name2": "Model.attr2",
             },
-            "tests.models",
+            import_from,
         )
         order_by_instance.visit_statement(
             mock_sql_statement, {"order_by": "order_by_name,-order_by_name2"}
@@ -116,8 +133,7 @@ class TestOrderByMap:
         assert mock_sql_statement.order_by.call_args.args[1].modifier == desc_op
 
     def test_visit_statement_appends_order_by_clauses_for_given_order_by_with_label(
-        self,
-        mock_sql_statement: Mock,
+        self, mock_sql_statement: Mock, import_from
     ):
         """Test that the order by map class appends order by clauses for given order by
         with label."""
@@ -128,7 +144,7 @@ class TestOrderByMap:
                 "order_by_name": "col_label",
                 "order_by_name2": "exp_label",
             },
-            "tests.models",
+            import_from,
         )
         order_by_instance.visit_statement(
             mock_sql_statement, {"order_by": "order_by_name,-order_by_name2"}
@@ -147,8 +163,7 @@ class TestOrderByMap:
         assert mock_sql_statement.order_by.call_args.args[1].modifier == desc_op
 
     def test_visit_statement_appends_order_by_clauses_for_given_order_by_with_label_and_attr(
-        self,
-        mock_sql_statement: Mock,
+        self, mock_sql_statement: Mock, import_from
     ):
         """Test that the order by map class appends order by clauses for given order by
         with label and attr."""
@@ -159,7 +174,7 @@ class TestOrderByMap:
                 "order_by_name": "col_label",
                 "order_by_name2": "Model.attr",
             },
-            "tests.models",
+            import_from,
         )
         order_by_instance.visit_statement(
             mock_sql_statement, {"order_by": "order_by_name,-order_by_name2"}
@@ -172,8 +187,7 @@ class TestOrderByMap:
         assert mock_sql_statement.order_by.call_args.args[1].modifier == desc_op
 
     def test_visit_statement_raises_exception_when_order_by_query_param_is_invalid(
-        self,
-        mock_sql_statement: Mock,
+        self, mock_sql_statement: Mock, import_from
     ):
         """Test that the order by map class raises an exception when the order by query
         param is invalid."""
@@ -182,7 +196,7 @@ class TestOrderByMap:
                 "order_by_name": "Model.attr",
                 "order_by_name2": "Model.attr2",
             },
-            "tests.models",
+            import_from,
         )
         with pytest.raises(
             OrderByException, match="^(Unknown order_by attribute: invalid_param)$"
@@ -192,6 +206,14 @@ class TestOrderByMap:
             )
 
 
+@pytest.mark.parametrize(
+    "import_from",
+    [
+        "tests.models",
+        tests.models,
+    ],
+    ids=["string", "module"],
+)
 class TestNullFilterMap:
     """Test the NullFilterMap class."""
 
@@ -215,7 +237,7 @@ class TestNullFilterMap:
         )
     )
     def test_visit_statement_appends_where_clauses_for_given_filters(
-        self, mock_sql_statement: Mock, given_filters, compare
+        self, mock_sql_statement: Mock, given_filters, compare, import_from
     ):
         """Test that the filter class appends where clauses for given filters."""
         filter_instance = NullFilterMap(
@@ -223,7 +245,7 @@ class TestNullFilterMap:
                 "filter_name": "Model.attr",
                 "filter_name2": "Model.attr2",
             },
-            "tests.models",
+            import_from,
         )
         filter_instance.visit_statement(mock_sql_statement, given_filters)
         for actual, expected in zip(mock_sql_statement.where.call_args.args, compare):
@@ -233,8 +255,7 @@ class TestNullFilterMap:
             assert str(actual.right) == "NULL"
 
     def test_visit_statement_raises_exception_when_query_param_value_is_invalid(
-        self,
-        mock_sql_statement: Mock,
+        self, mock_sql_statement: Mock, import_from
     ):
         """Test that the null filter map class raises an exception when the query param
         value is invalid."""
@@ -243,7 +264,7 @@ class TestNullFilterMap:
                 "filter_name": "Model.attr",
                 "filter_name2": "Model.attr2",
             },
-            "tests.models",
+            import_from,
         )
         with pytest.raises(
             NullFilterException,
@@ -254,8 +275,7 @@ class TestNullFilterMap:
             )
 
     def test_visit_statement_does_nothing_if_filter_is_not_in_filters(
-        self,
-        mock_sql_statement: Mock,
+        self, mock_sql_statement: Mock, import_from
     ):
         """Test that the null filter map class does nothing if the filter is not in the
         filters."""
@@ -264,7 +284,7 @@ class TestNullFilterMap:
                 "filter_name": "Model.attr",
                 "filter_name2": "Model.attr2",
             },
-            "tests.models",
+            import_from,
         )
         filter_instance.visit_statement(mock_sql_statement, {"filter_name3": "null"})
         mock_sql_statement.where.assert_called_once_with()

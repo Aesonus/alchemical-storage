@@ -2,12 +2,13 @@
 used to map filters and order_by attributes to sqlalchemy statements."""
 
 import functools
-import importlib
 import operator
+from types import ModuleType
 from typing import Any, Callable, Generator
 
 from sqlalchemy.sql.expression import desc
 
+from alchemical_storage import get_module
 from alchemical_storage.filter.exc import NullFilterException, OrderByException
 from alchemical_storage.visitor import StatementVisitor, T
 
@@ -19,7 +20,7 @@ class FilterMap(StatementVisitor):
 
     Args:
         filters (dict[str, Any]): A dictionary of filters
-        import_from (str): The module to import Model classes from
+        import_from (str | ModuleType): The module to import Model classes from
 
     Example:
         .. code-block:: python
@@ -37,8 +38,8 @@ class FilterMap(StatementVisitor):
 
     filters: dict[str, Callable]
 
-    def __init__(self, filters: dict[str, Any], import_from: str) -> None:
-        self.__module = importlib.import_module(import_from)
+    def __init__(self, filters: dict[str, Any], import_from: str | ModuleType) -> None:
+        self.__module = get_module(import_from)
         self.filters = {}
         for filter_, exprs in filters.items():
             if isinstance(exprs, tuple):
@@ -89,7 +90,7 @@ class OrderByMap(StatementVisitor):
         order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
             the key is the attribute name and the value is the column or label to order
             by.
-        import_from (str): The module to import Model classes from
+        import_from (str | ModuleType): The module to import Model classes from
 
     Example:
         .. code-block:: python
@@ -103,8 +104,10 @@ class OrderByMap(StatementVisitor):
 
     order_by_attributes: dict[str, Any]
 
-    def __init__(self, order_by_attributes: dict[str, Any], import_from: str) -> None:
-        module = importlib.import_module(import_from)
+    def __init__(
+        self, order_by_attributes: dict[str, Any], import_from: str | ModuleType
+    ) -> None:
+        module = get_module(import_from)
         self.order_by_attributes = {}
         for attr, column in order_by_attributes.items():
             if "." in column:
@@ -152,7 +155,7 @@ class NullFilterMap(StatementVisitor):
 
     Args:
         filters (dict[str, Any]): A dictionary of filters
-        import_from (str): The module to import Model classes from
+        import_from (str | ModuleType): The module to import Model classes from
 
     Keyword Args:
         null_identifiers (tuple[str, str]): The identifiers for null and not null.
@@ -176,10 +179,10 @@ class NullFilterMap(StatementVisitor):
     def __init__(
         self,
         filters: dict[str, Any],
-        import_from: str,
+        import_from: str | ModuleType,
         null_identifiers: tuple[str, str] = ("null", "not-null"),
     ) -> None:
-        self.__module = importlib.import_module(import_from)
+        self.__module = get_module(import_from)
         self.filters = {}
         self.null_identifiers = null_identifiers
         for filter_, attr in filters.items():
