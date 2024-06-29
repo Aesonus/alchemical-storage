@@ -1,3 +1,4 @@
+import operator
 from unittest.mock import Mock
 
 from alchemical_storage.pagination import PaginationMap
@@ -14,6 +15,23 @@ class TestPaginationMap:
         page_params = models.PageParams(5, 0)
 
         pagination_instance = PaginationMap("page_params", "page_size", "first_item")
+        pagination_instance.visit_statement(
+            mock_sql_statement, {"page_params": page_params}
+        )
+
+        mock_sql_statement.limit.assert_called_once_with(5)
+        mock_sql_statement.limit.return_value.offset.assert_called_once_with(0)
+
+    def test_visit_statement_uses_getitem_if_getter_func_is_passed(
+        self,
+        mock_sql_statement: Mock,
+    ):
+        """Test that the pagination map class uses the getter function if passed."""
+        page_params = {"page_size": 5, "first_item": 0}
+
+        pagination_instance = PaginationMap(
+            "page_params", "page_size", "first_item", getter_func=operator.getitem
+        )
         pagination_instance.visit_statement(
             mock_sql_statement, {"page_params": page_params}
         )

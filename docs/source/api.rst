@@ -33,3 +33,11 @@ Joins
     :show-inheritance:
     :inherited-members:
 
+Pagination
+----------
+
+.. automodule:: alchemical_storage.pagination
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
