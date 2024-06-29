@@ -36,3 +36,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 
 html_theme = "alabaster"
 html_static_path = ["_static"]
+html_theme_options = {
+    "fixed_sidebar": True,
+    "description": "A package to bridge CRUD operations with SQLAlchemy query constructs.",
+}
