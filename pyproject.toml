@@ -31,6 +31,7 @@ pre-commit = "^3.6.0"
 sphinx = "^7.2.3"
 m2r2 = "^0.3.3.post2"
 docutils = "<0.21"  # Workaround for error in m2r2
+setuptools = "^70.1.1"
 
 [tool.pyproject-version]
 files = ["alchemical_storage/__init__.py"]
