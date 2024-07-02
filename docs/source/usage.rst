@@ -1,12 +1,12 @@
 Usage Guide
 -----------
-This guide assumes that you have prior knowledge of SQLAlchemy and Marshmallow-SQLAlchemy. If you are not familiar with these libraries, please refer to their documentation first.
+This guide assumes prior knowledge of `SQLAlchemy <https://www.sqlalchemy.org>`_, `Marshmallow <https://marshmallow.readthedocs.io/en/stable/>`_, and `Marshmallow-SQLAlchemy <https://marshmallow-sqlalchemy.readthedocs.io/en/latest/>`_. If you are not familiar with these packages, please refer to their documentation first.
 
-We will be using SQLAlchemy version 2, but this library should also work with SQLAlchemy version 1.
+.. _UsingDatabaseIndex:
 
 Database Index
 ==============
-The :class:`DatabaseIndex <alchemical_storage.storage.index.DatabaseIndex>` class is used to retreive an index of items from the database. It can also use customizable filters, sorting, pagination, and more.
+The :class:`DatabaseIndex <alchemical_storage.storage.index.DatabaseIndex>` class is used to retrieve an index of items from the database. It can also use customizable filters, sorting, pagination, and more.
 
 Setup
 ~~~~~
@@ -42,7 +42,7 @@ The next step is to create an instance of the :class:`DatabaseIndex <alchemical_
 Getting Items
 ~~~~~~~~~~~~~
 
-To get all items from the database, you can use the :meth:`DatabaseIndex.get <alchemical_storage.storage.DatabaseIndex.get>` method. This method returns a list of items.
+To get all items from the database, use the :meth:`DatabaseIndex.get <alchemical_storage.storage.DatabaseIndex.get>` method. This method returns a list of items.
 
 .. code-block:: python
     :caption: index.py
@@ -52,7 +52,7 @@ To get all items from the database, you can use the :meth:`DatabaseIndex.get <al
 Getting the Total Number of Items
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To get the total number of items in the database, you can use the :meth:`DatabaseIndex.count <alchemical_storage.storage.DatabaseIndex.count>` method.
+To get the total number of items in the database, use the :meth:`DatabaseIndex.count <alchemical_storage.storage.DatabaseIndex.count>` method.
 
 .. code-block:: python
     :caption: index.py
@@ -470,3 +470,178 @@ Custom :class:`StatementVisitor <alchemical_storage.visitor.StatementVisitor>` c
         def visit_statement(self, statement, **kwargs):
             # Custom logic here
             return statement
+
+Database Storage
+================
+
+The :class:`DatabaseStorage <alchemical_storage.storage.DatabaseStorage>` class is used to store and get individual items in the database, as well as having the functionality of the :class:`DatabaseIndex <alchemical_storage.storage.index.DatabaseIndex>` class.
+
+.. note::
+    For more information on filters, sorting, pagination, and joins, see the :ref:`UsingDatabaseIndex` section above.
+
+Setup
+~~~~~
+First, we will need a model class to represent the database table. In this example, we will use a table called ``Items`` and the model class will look like this:
+
+.. code-block:: python
+    :caption: models.py
+
+    import datetime
+    from sqlalchemy import orm
+
+    class Item(orm.DeclarativeBase):
+        __tablename__ = 'Items'
+
+        id: orm.Mapped[int] = orm.mapped_column(primary_key=True)
+        name: orm.Mapped[str]
+        price: orm.Mapped[float]
+        department_id: orm.Mapped[int]
+        deleted_at: orm.Mapped[datetime.datetime | None]
+
+Next, create a ``marshmallow.SqlAlchemySchema`` class, this will be used to put and patch items in the database:
+
+.. code-block:: python
+    :caption: schemas.py
+
+    from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
+    from .models import Item
+
+    class ItemSchema(SQLAlchemySchema):
+        class Meta:
+            model = Item
+            load_instance = True
+
+        id = auto_field() # Omit this is the primary key is auto-generated
+        name = auto_field()
+        price = auto_field()
+        department_id = auto_field()
+        deleted_at = auto_field()
+
+.. warning::
+    Make sure to set the ``load_instance`` attribute to ``True`` in the ``Meta`` class in addition to setting the ``model`` attribute to the model class.
+
+Now we can create an instance of the :class:`DatabaseStorage <alchemical_storage.storage.DatabaseStorage>` class. This class requires a SQLAlchemy session, a model class, the model's schema class, and the name of the primary key(s).
+
+.. code-block:: python
+    :caption: storage.py
+
+    from alchemical_storage.storage import DatabaseStorage
+    from .models import Item
+    from .schemas import ItemSchema
+    from .session import session # Assuming that the session is already
+                                 # created in a separate file
+
+    storage = DatabaseStorage(session, Item, ItemSchema, "id")
+
+.. note::
+    The primary key(s) can be a single column name or a sequence of column names.
+
+Getting an Item
+~~~~~~~~~~~~~~~
+
+To get an item from the database, use the :meth:`DatabaseStorage.get <alchemical_storage.storage.DatabaseStorage.get>` method. This method returns a single item.
+
+.. code-block:: python
+    :caption: storage.py
+
+    item = storage.get(1)
+
+.. note::
+    When using a composite primary key, pass a sequence of values to the :meth:`DatabaseStorage.get <alchemical_storage.storage.DatabaseStorage.get>` method to get the desired item.
+
+If the item is not found, the :meth:`DatabaseStorage.get <alchemical_storage.storage.DatabaseStorage.get>` method will raise a :class:`NotFoundError <alchemical_storage.storage.exc.NotFoundError>` exception.
+
+
+Putting an Item
+~~~~~~~~~~~~~~~
+
+To put an item in the database, use the :meth:`DatabaseStorage.put <alchemical_storage.storage.DatabaseStorage.put>` method. This method returns the item that was put in the database.
+
+.. code-block:: python
+    :caption: storage.py
+
+    item = storage.put(
+        1,  # The item's ID; if the primary key is auto-generated,
+            # set this to None.
+        {
+            "name": "apple",
+            "price": 1.0,
+            "department_id": 1,
+            "deleted_at": None
+        },
+    )
+
+.. note::
+    When using a composite primary key, pass a sequence of values to the first parameter of the :meth:`DatabaseStorage.put <alchemical_storage.storage.DatabaseStorage.put>` method. If using an auto-generated primary key, set the first parameter to ``None`` or sequence of ``None``'s of the same length as the composite primary key.
+
+If the item already exists, the :meth:`DatabaseStorage.put <alchemical_storage.storage.DatabaseStorage.put>` method will raise a :class:`ConflictError <alchemical_storage.storage.exc.ConflictError>` exception.
+
+Patching an Item
+~~~~~~~~~~~~~~~~
+
+To patch an item in the database, use the :meth:`DatabaseStorage.patch <alchemical_storage.storage.DatabaseStorage.patch>` method. This method returns the item that was patched in the database.
+
+.. code-block:: python
+    :caption: storage.py
+
+    item = storage.patch(
+        1,  # The item's ID, this is required
+        {
+            "name": "apple",
+            "price": 1.0,
+            "department_id": 1,
+            "deleted_at": None
+        },
+    )
+
+All data fields are optional, and only the fields that are passed will be updated.
+
+.. note::
+    When using a composite primary key, pass a sequence of values to the first parameter of the :meth:`DatabaseStorage.patch <alchemical_storage.storage.DatabaseStorage.patch>` method.
+
+If the item is not found, the :meth:`DatabaseStorage.patch <alchemical_storage.storage.DatabaseStorage.patch>` method will raise a :class:`NotFoundError <alchemical_storage.storage.exc.NotFoundError>` exception.
+
+Deleting an Item
+~~~~~~~~~~~~~~~~
+
+To delete an item from the database, use the :meth:`DatabaseStorage.delete <alchemical_storage.storage.DatabaseStorage.delete>` method. This method returns the item that was deleted from the database.
+
+.. code-block:: python
+    :caption: storage.py
+
+    item = storage.delete(1)
+
+.. note::
+    When using a composite primary key, pass a sequence of values to the :meth:`DatabaseStorage.delete <alchemical_storage.storage.DatabaseStorage.delete>` method.
+
+If the item is not found, the :meth:`DatabaseStorage.delete <alchemical_storage.storage.DatabaseStorage.delete>` method will raise a :class:`NotFoundError <alchemical_storage.storage.exc.NotFoundError>` exception.
+
+Checking if an Item Exists
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To check if an item exists in the database, use the ``in`` operator:
+
+.. code-block:: python
+    :caption: storage.py
+
+    if 1 in storage:
+        print("Item exists")
+    else:
+        print("Item does not exist")
+
+This will return ``True`` if the item exists and ``False`` if it does not.
+
+.. note:: When using a composite primary key, pass a sequence of values to the ``in`` operator.
+
+Getting All Items
+~~~~~~~~~~~~~~~~~
+
+To get all items from the database, use the :meth:`DatabaseStorage.index <alchemical_storage.storage.DatabaseStorage.index>` method. This method accepts arguments and returns a list of items in the same fashion as the :meth:`DatabaseIndex.get <alchemical_storage.storage.DatabaseIndex.get>` method.
+
+.. note::
+    To set up filters, sorting, pagination, joins, and other statement visitors, they can be specified in the constructor of the :class:`DatabaseStorage <alchemical_storage.storage.DatabaseStorage>` class using the ``statement_visitors`` keyword argument. See the :ref:`UsingDatabaseIndex` section above for more information on how those work.
+
+Getting the Total Number of Items
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To get the total number of items in the database, use the :meth:`DatabaseStorage.count <alchemical_storage.storage.DatabaseStorage.count>` method.

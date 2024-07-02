@@ -9,6 +9,13 @@ Storage
     :show-inheritance:
     :inherited-members:
 
+Storage Exceptions
+------------------
+
+.. automodule:: alchemical_storage.storage.exc
+    :members:
+    :show-inheritance:
+
 Visitor
 -------
 
