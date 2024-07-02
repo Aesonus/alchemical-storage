@@ -4,6 +4,7 @@ from typing import Any, Callable, Generic, Optional, TypeVar
 
 import sqlalchemy as sql
 from sqlalchemy import orm
+from typing_extensions import deprecated
 
 from alchemical_storage.visitor import StatementVisitor
 
@@ -25,7 +26,7 @@ class DatabaseIndex(Generic[EntityType]):
         self._statement_visitors = statement_visitors or []
         self._count_key = count_key
 
-    def get(self, page_params=None, **kwargs) -> list[Any]:
+    def get(self, **kwargs) -> list[Any]:
         """Get a list resources from storage."""
         if isinstance(self.entity, tuple):
             stmt = sql.select(*self.entity)
@@ -33,13 +34,20 @@ class DatabaseIndex(Generic[EntityType]):
             stmt = sql.select(self.entity)
         for visitor in self._statement_visitors:
             stmt = visitor.visit_statement(stmt, kwargs)
-        if page_params:
-            stmt = stmt.limit(page_params.page_size).offset(page_params.first_item)
         if isinstance(self.entity, tuple):
             return [*self.session.execute(stmt).unique().all()]
         return [*self.session.execute(stmt).unique().scalars().all()]
 
+    @deprecated("Use count instead.")
     def count_index(self, **kwargs) -> int:
+        """Count resources in storage.
+
+        Deprecated.
+
+        """
+        return self.count(**kwargs)
+
+    def count(self, **kwargs) -> int:
         """Count resources in storage."""
         stmt = sql.select(sql.func.count(self._count_key(self.entity)))
         for visitor in self._statement_visitors:

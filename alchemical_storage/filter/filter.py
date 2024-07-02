@@ -2,13 +2,14 @@
 used to map filters and order_by attributes to sqlalchemy statements."""
 
 import functools
-import importlib
 import operator
+from types import ModuleType
 from typing import Any, Callable, Generator
 
 from sqlalchemy.sql.expression import desc
 
-from alchemical_storage.filter.exc import OrderByException
+from alchemical_storage import get_module
+from alchemical_storage.filter.exc import NullFilterException, OrderByException
 from alchemical_storage.visitor import StatementVisitor, T
 
 # pylint: disable=too-few-public-methods
@@ -19,7 +20,7 @@ class FilterMap(StatementVisitor):
 
     Args:
         filters (dict[str, Any]): A dictionary of filters
-        import_from (str): The module to import Model classes from
+        import_from (str | ModuleType): The module to import Model classes from
 
     Example:
         .. code-block:: python
@@ -30,17 +31,15 @@ class FilterMap(StatementVisitor):
                 "ending_at": ('Game.played_on', operator.le,),
             }, 'your_models_module.models')
 
-
-    Note:
-        + May use sqlalchemy's ``sqlalchemy.sql.operators`` for the operator.
-        + The ``your_models_module.models`` is the module where the models are defined.
+    See Also:
+        :ref:`Usage Guide for FilterMap <UsingFilterMap>`
 
     """
 
     filters: dict[str, Callable]
 
-    def __init__(self, filters: dict[str, Any], import_from: str) -> None:
-        self.__module = importlib.import_module(import_from)
+    def __init__(self, filters: dict[str, Any], import_from: str | ModuleType) -> None:
+        self.__module = get_module(import_from)
         self.filters = {}
         for filter_, exprs in filters.items():
             if isinstance(exprs, tuple):
@@ -91,7 +90,7 @@ class OrderByMap(StatementVisitor):
         order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
             the key is the attribute name and the value is the column or label to order
             by.
-        import_from (str): The module to import Model classes from
+        import_from (str | ModuleType): The module to import Model classes from
 
     Example:
         .. code-block:: python
@@ -105,8 +104,10 @@ class OrderByMap(StatementVisitor):
 
     order_by_attributes: dict[str, Any]
 
-    def __init__(self, order_by_attributes: dict[str, Any], import_from: str) -> None:
-        module = importlib.import_module(import_from)
+    def __init__(
+        self, order_by_attributes: dict[str, Any], import_from: str | ModuleType
+    ) -> None:
+        module = get_module(import_from)
         self.order_by_attributes = {}
         for attr, column in order_by_attributes.items():
             if "." in column:
@@ -147,3 +148,64 @@ class OrderByMap(StatementVisitor):
                     yield self.order_by_attributes[attr]
             else:
                 raise OrderByException(f"Unknown order_by attribute: {attr}")
+
+
+class NullFilterMap(StatementVisitor):
+    """Applies a ``IS NULL`` or ``IS NOT NULL`` filter to an sqlalchemy statement.
+
+    Args:
+        filters (dict[str, Any]): A dictionary of filters
+        import_from (str | ModuleType): The module to import Model classes from
+
+    Keyword Args:
+        null_identifiers (tuple[str, str]): The identifiers for null and not null.
+            Defaults to ``("null", "not-null")``.
+
+    Example:
+        .. code-block:: python
+
+            null_filter_visitor = NullFilterMap({
+                "deleted_at": 'Game.deleted_at',
+            }, 'your_models_module.models')
+
+    See Also:
+        :ref:`Usage Guide for NullFilterMap <UsingNullFilterMap>`
+
+    """
+
+    filters: dict[str, Any]
+    null_identifiers: tuple[str, str]
+
+    def __init__(
+        self,
+        filters: dict[str, Any],
+        import_from: str | ModuleType,
+        null_identifiers: tuple[str, str] = ("null", "not-null"),
+    ) -> None:
+        self.__module = get_module(import_from)
+        self.filters = {}
+        self.null_identifiers = null_identifiers
+        for filter_, attr in filters.items():
+            get_by = None
+            for child in attr.split("."):
+                if not get_by:
+                    get_by = getattr(self.__module, child)
+                else:
+                    get_by = getattr(get_by, child)
+            self.filters[filter_] = get_by
+
+    def visit_statement(self, statement: T, params: dict[str, Any]) -> T:
+        return statement.where(*self._generate_where_clauses(params))
+
+    def _generate_where_clauses(self, given_filters: dict[str, Any]):
+        null, not_null = self.null_identifiers
+        for attr, filtered_by in given_filters.items():
+            if attr in self.filters:
+                if filtered_by == null:
+                    yield self.filters[attr].is_(None)
+                elif filtered_by == not_null:
+                    yield self.filters[attr].isnot(None)
+                else:
+                    raise NullFilterException(
+                        f"Unknown filter value: '{filtered_by}' for `{attr}`"
+                    )
