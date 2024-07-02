@@ -9,8 +9,6 @@ from alchemical_storage.join import JoinMap
 from tests import dict_to_params
 from tests.models import Model, OtherRelatedToModel, RelatedToModel
 
-# pylint: disable=too-few-public-methods,redefined-outer-name
-
 
 @pytest.mark.parametrize(
     "import_from",

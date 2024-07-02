@@ -16,8 +16,6 @@ from tests import dict_to_params
 
 from .models import Model
 
-# pylint: disable=too-few-public-methods,redefined-outer-name
-
 
 @pytest.mark.parametrize(
     "import_from",
@@ -42,7 +40,6 @@ class TestFilterMap:
             },
             import_from,
         )
-        # pylint: disable=comparison-with-callable
         assert filter_instance.filters["filter_name"].func == operator.eq
         assert filter_instance.filters["filter_name"].args[0] == Model.attr
 
@@ -113,7 +110,6 @@ class TestOrderByMap:
     ):
         """Test that the order by map class appends order by clauses for given order
         by."""
-        # pylint: disable=comparison-with-callable
 
         order_by_instance = OrderByMap(
             {
@@ -137,7 +133,6 @@ class TestOrderByMap:
     ):
         """Test that the order by map class appends order by clauses for given order by
         with label."""
-        # pylint: disable=comparison-with-callable
 
         order_by_instance = OrderByMap(
             {
@@ -167,7 +162,6 @@ class TestOrderByMap:
     ):
         """Test that the order by map class appends order by clauses for given order by
         with label and attr."""
-        # pylint: disable=comparison-with-callable
 
         order_by_instance = OrderByMap(
             {
