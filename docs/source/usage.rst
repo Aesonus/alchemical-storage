@@ -27,7 +27,7 @@ First, we will need a model class to represent the database table. In this examp
         department_id: orm.Mapped[int]
         deleted_at: orm.Mapped[datetime.datetime | None]
 
-The next step is to create an instance of the :class:`DatabaseIndex <alchemical_storage.storage.index.DatabaseIndex>` class. This class requires a SQLAlchemy session, a model class and a column to use for counting the total number of items. In this case, we will use the ``id`` column.
+The next step is to create an instance of the :class:`DatabaseIndex <alchemical_storage.storage.index.DatabaseIndex>` class. This class requires a SQLAlchemy session, a model class and a callable that is passed the ``entity`` argument of the constructor and returns a ``sqlalchemy.ColumnElement`` to use for counting the total number of items. In this case, we will use the ``id`` column.
 
 .. code-block:: python
     :caption: index.py
@@ -37,7 +37,7 @@ The next step is to create an instance of the :class:`DatabaseIndex <alchemical_
     from .session import session # Assuming that the session is already
                                  # created in a separate file
 
-    index = DatabaseIndex(session, Item, Item.id)
+    index = DatabaseIndex(session, Item, lambda entity: entity.id)
 
 Getting Items
 ~~~~~~~~~~~~~
