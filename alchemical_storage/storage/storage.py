@@ -178,7 +178,9 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
         raise NotFoundError
 
     def index(self, **kwargs) -> list[AlchemyModel]:
-        return DatabaseIndex.get(self, **kwargs)
+        # Ignore type error because the return type will always be a list of
+        # Model instances
+        return DatabaseIndex.get(self, **kwargs)  # type: ignore[return-value]
 
     @deprecated("Use count instead.")
     def count_index(self, **kwargs) -> int:
