@@ -1,4 +1,4 @@
-"""Storage module."""
+"""Package containing classes for resource storage."""
 
 from alchemical_storage.storage import exc
 from alchemical_storage.storage.index import DatabaseIndex
