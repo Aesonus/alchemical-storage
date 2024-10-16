@@ -8,6 +8,7 @@ Storage
     :members:
     :show-inheritance:
     :inherited-members:
+    :special-members: __contains__
 
 Storage Exceptions
 ------------------
