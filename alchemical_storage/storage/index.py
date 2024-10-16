@@ -1,4 +1,4 @@
-"""Index module."""
+"""Contains the ``DatabaseIndex`` class."""
 
 from typing import Any, Callable, Generic, Optional, TypeVar
 
@@ -12,7 +12,18 @@ EntityType = TypeVar("EntityType", bound=Any)  # pylint: disable=invalid-name
 
 
 class DatabaseIndex(Generic[EntityType]):
-    """Database index."""
+    """Index of resources in a database.
+
+    Arguments:
+        session: The database session.
+        entity: The entity type.
+        count_key: The callable that receives the entity type and returns the count
+            key.
+
+    Keyword Arguments:
+        statement_visitors: List of statement visitors.
+
+    """
 
     def __init__(
         self,
@@ -26,8 +37,16 @@ class DatabaseIndex(Generic[EntityType]):
         self._statement_visitors = statement_visitors or []
         self._count_key = count_key
 
-    def get(self, **kwargs) -> list[Any]:
-        """Get a list resources from storage."""
+    def get(self, **kwargs) -> list[EntityType] | list[sql.Row[EntityType]]:
+        """Get a list of resources from storage.
+
+        Arguments:
+            **kwargs: Parameters to pass to the statement visitors.
+
+        Returns:
+            List of models or rows.
+
+        """
         if isinstance(self.entity, tuple):
             stmt = sql.select(*self.entity)
         else:
@@ -42,13 +61,21 @@ class DatabaseIndex(Generic[EntityType]):
     def count_index(self, **kwargs) -> int:
         """Count resources in storage.
 
-        Deprecated.
+        Deprecated. Use ``count`` instead.
 
         """
         return self.count(**kwargs)
 
     def count(self, **kwargs) -> int:
-        """Count resources in storage."""
+        """Count resources in storage.
+
+        Arguments:
+            **kwargs: Parameters to pass to the statement visitors.
+
+        Returns:
+            The count of resources in storage.
+
+        """
         stmt = sql.select(sql.func.count(self._count_key(self.entity)))
         for visitor in self._statement_visitors:
             stmt = visitor.visit_statement(stmt, kwargs)
