@@ -5,7 +5,7 @@ from typing import Any, TypeVar
 
 import sqlalchemy as sql
 
-T = TypeVar("T", sql.Select, sql.ColumnElement)
+T = TypeVar("T", bound=sql.Select)
 
 
 class StatementVisitor(abc.ABC):
