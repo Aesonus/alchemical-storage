@@ -57,7 +57,7 @@ To get the total number of items in the database, use the :meth:`DatabaseIndex.c
 .. code-block:: python
     :caption: index.py
 
-    total_items = index.count()
+    total_items = index.count(**filters)
 
 Using Filters
 ~~~~~~~~~~~~~
@@ -450,6 +450,20 @@ This would translate to (roughly) this in SQL:
     AND Departments.name ILIKE '%grocery%'
     ORDER BY Items.name ASC, Items.price DESC
     LIMIT 10 OFFSET 0
+
+Filters also work for counting the total number of items:
+
+.. code-block:: python
+    :caption: index_with_everything.py
+
+    total_items = index.count(
+        name="%apple%",
+        department_id=1,
+        price_gt=1.0,
+        price_lt=10.0,
+        deleted="null",
+        department_name="%grocery%"
+    )
 
 Statement Visitors
 ==================
