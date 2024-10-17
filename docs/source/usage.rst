@@ -659,3 +659,9 @@ Getting the Total Number of Items
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To get the total number of items in the database, use the :meth:`DatabaseStorage.count <alchemical_storage.storage.DatabaseStorage.count>` method.
+
+.. code-block:: python
+    :caption: storage.py
+
+    # Filters can be passed to the count method
+    total_items = storage.count(**filters)
