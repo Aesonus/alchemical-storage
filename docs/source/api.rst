@@ -9,6 +9,7 @@ Storage
     :show-inheritance:
     :inherited-members:
     :special-members: __contains__
+    :exclude-members: StorageABC
 
 Storage Exceptions
 ------------------
