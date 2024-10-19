@@ -16,7 +16,8 @@ from alchemical_storage.visitor import StatementVisitor, T
 
 
 class FilterMap(StatementVisitor):
-    """Initialize the filter mapper.
+    """Maps :meth:`FilterMap.visit_statement<.FilterMap.visit_statement>` ``params``
+    argument dict keys to ``sqlalchemy.Select.where`` calls.
 
     Arguments:
         filters (dict[str, Any]): A dictionary of filters
