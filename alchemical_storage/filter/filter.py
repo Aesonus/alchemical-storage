@@ -20,8 +20,8 @@ class FilterMap(StatementVisitor):
     argument dict keys to ``sqlalchemy.Select.where`` calls.
 
     Arguments:
-        filters (dict[str, Any]): A dictionary of filters
-        import_from (str | ModuleType): The module to import Model classes from
+        filters: A dictionary of filters
+        import_from: The module to import Model classes from
 
     Example:
         .. code-block:: python
@@ -62,8 +62,8 @@ class FilterMap(StatementVisitor):
         ignored.
 
         Arguments:
-            statement (T): The sqlalchemy statement to apply filters to
-            params (dict[str, Any]): The filters to apply
+            statement: The sqlalchemy statement to apply filters to
+            params: The filters to apply
 
         Returns:
             T: The filtered sqlalchemy statement
@@ -85,10 +85,10 @@ class OrderByMap(StatementVisitor):
     ``order_by`` key to ``sqlalchemy.Select.order_by`` calls.
 
     Arguments:
-        order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
+        order_by_attributes: A dictionary of order_by attributes, where
             the key is the attribute name and the value is the column or label to order
             by.
-        import_from (str | ModuleType): The module to import Model classes from
+        import_from: The module to import Model classes from
 
     Example:
         .. code-block:: python
@@ -124,8 +124,8 @@ class OrderByMap(StatementVisitor):
         ``params``.
 
         Arguments:
-            statement (T): The sqlalchemy statement to apply order_by to
-            params (dict[str, Any]): The filters to apply
+            statement: The sqlalchemy statement to apply order_by to
+            params: The filters to apply
 
         Returns:
             T: The order_by sqlalchemy statement
@@ -155,11 +155,11 @@ class NullFilterMap(StatementVisitor):
     """Applies a ``IS NULL`` or ``IS NOT NULL`` filter to an sqlalchemy statement.
 
     Arguments:
-        filters (dict[str, Any]): A dictionary of filters
-        import_from (str | ModuleType): The module to import Model classes from
+        filters: A dictionary of filters
+        import_from: The module to import Model classes from
 
     Keyword Arguments:
-        null_identifiers (tuple[str, str]): The identifiers for null and not null.
+        null_identifiers: The identifiers for null and not null.
             Defaults to ``("null", "not-null")``.
 
     Example:
