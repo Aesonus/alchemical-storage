@@ -1,4 +1,4 @@
-"""Contains the ``DatabaseIndex`` class."""
+"""Classes to get indexes of resources from a database."""
 
 from typing import Any, Callable, Generic, Optional, TypeVar
 
