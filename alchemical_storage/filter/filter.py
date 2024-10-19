@@ -33,7 +33,7 @@ class FilterMap(StatementVisitor):
             }, 'your_models_module.models')
 
     See Also:
-        :ref:`Usage Guide for FilterMap <UsingFilterMap>`
+        :ref:`Using Filters > FilterMap <UsingFilterMap>`
 
     """
 
