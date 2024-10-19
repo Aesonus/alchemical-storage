@@ -38,13 +38,13 @@ class DatabaseIndex(Generic[EntityType]):
         self._count_key = count_key
 
     def get(self, **kwargs) -> list[EntityType] | list[sql.Row[EntityType]]:
-        """Get a list of resources from storage.
+        """Get a list (index) of resources from storage.
 
         Arguments:
             **kwargs: Parameters to pass to the statement visitors.
 
         Returns:
-            List of models or rows.
+            List of models or rows if entity is a tuple.
 
         """
         if isinstance(self.entity, tuple):
