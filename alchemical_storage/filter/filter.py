@@ -18,7 +18,7 @@ from alchemical_storage.visitor import StatementVisitor, T
 class FilterMap(StatementVisitor):
     """Initialize the filter mapper.
 
-    Args:
+    Arguments:
         filters (dict[str, Any]): A dictionary of filters
         import_from (str | ModuleType): The module to import Model classes from
 
@@ -60,7 +60,7 @@ class FilterMap(StatementVisitor):
         filter in ``self.filters``. If the key is not in ``self.filters``, it is
         ignored.
 
-        Args:
+        Arguments:
             statement (T): The sqlalchemy statement to apply filters to
             params (dict[str, Any]): The filters to apply
 
@@ -81,7 +81,7 @@ class FilterMap(StatementVisitor):
 class OrderByMap(StatementVisitor):
     """A mapper to convert order_by attributes to sqlalchemy order_by expressions.
 
-    Args:
+    Arguments:
         order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
             the key is the attribute name and the value is the column or label to order
             by.
@@ -117,7 +117,7 @@ class OrderByMap(StatementVisitor):
         """Apply order_by to an sqlalchemy query. Ignored if ``order_by`` key is not in
         ``params``.
 
-        Args:
+        Arguments:
             statement (T): The sqlalchemy statement to apply order_by to
             params (dict[str, Any]): The filters to apply
 
@@ -148,11 +148,11 @@ class OrderByMap(StatementVisitor):
 class NullFilterMap(StatementVisitor):
     """Applies a ``IS NULL`` or ``IS NOT NULL`` filter to an sqlalchemy statement.
 
-    Args:
+    Arguments:
         filters (dict[str, Any]): A dictionary of filters
         import_from (str | ModuleType): The module to import Model classes from
 
-    Keyword Args:
+    Keyword Arguments:
         null_identifiers (tuple[str, str]): The identifiers for null and not null.
             Defaults to ``("null", "not-null")``.
 
