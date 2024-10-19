@@ -1,9 +1,9 @@
-"""Exceptions for the ``alchemical_storage.storage`` package."""
+"""Exceptions related to storage operations."""
 
 
 class ConflictError(Exception):
-    """Raised when putting a value that already exists in the storage."""
+    """Raised when putting a resource that already exists in the storage."""
 
 
 class NotFoundError(Exception):
-    """Raised when getting a value that does not exist in the storage."""
+    """Raised when getting a resource that does not exist in the storage."""
