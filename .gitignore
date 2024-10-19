@@ -154,3 +154,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Use this file for your local todo list
+TODO

@@ -1,4 +1,4 @@
-"""Module defining storage services."""
+"""Module containing the storage protocol and a database storage implementation."""
 
 import abc
 import functools
@@ -7,6 +7,7 @@ from typing import Any, Generic, Iterable, Optional, Sequence, Type, TypeVar
 import sqlalchemy as sql
 from marshmallow_sqlalchemy import SQLAlchemySchema
 from sqlalchemy.orm import DeclarativeBase, Session
+from typing_extensions import deprecated
 
 from alchemical_storage.storage.index import DatabaseIndex
 from alchemical_storage.visitor import StatementVisitor
@@ -23,29 +24,35 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
     def get(self, identity: Any) -> AlchemyModel:
         """Get a resource from storage.
 
-        Args:
-            identity (Any): The description
+        Arguments:
+            identity: The description
 
         Returns:
-            AlchemyModel: Object that can be serialized to output for api
+            A model that can be serialized to output for api
 
         """
 
     @abc.abstractmethod
     def index(self, **kwargs) -> list[AlchemyModel]:
-        """Get a list resources from storage.
+        """Get a list of resources from storage.
+
+        Arguments:
+            **kwargs: Parameters to pass to the statement visitors.
 
         Returns:
-            list[AlchemyModel]: List of objects that can be serialized to output for api
+            A list of models that can be serialized to output for api.
 
         """
 
     @abc.abstractmethod
-    def count_index(self, **kwargs) -> int:
-        """Get a list resources from storage.
+    def count(self, **kwargs) -> int:
+        """Count resources in storage.
+
+        Arguments:
+            **kwargs: Parameters to pass to the statement visitors.
 
         Returns:
-            int: Count of objects in given set
+            The count of resources in storage.
 
         """
 
@@ -53,12 +60,12 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
     def put(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
         """Put a new resource to storage.
 
-        Args:
-            identity (Any): The resource identifier
-            data (dict[str, Any]): Data that can be deserialized to Any for create
+        Arguments:
+            identity: The resource identifier
+            data: Data that can be deserialized to create a new resource
 
         Returns:
-            AlchemyModel: Object that can be serialized to output for api
+            A model that can be serialized to output for api
 
         """
 
@@ -66,12 +73,12 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
     def patch(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
         """Update a resource in storage.
 
-        Args:
-            identity (Any): The resource identifier
-            data (dict[str, Any]): Data that can be deserialized to Any for update
+        Arguments:
+            identity: The resource identifier
+            data: Data that can be deserialized to update the resource
 
         Returns:
-            AlchemyModel: Object that can be serialized to output for api
+            A model that can be serialized to output for api
 
         """
 
@@ -79,23 +86,23 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
     def delete(self, identity: Any) -> AlchemyModel:
         """Delete a resource from storage.
 
-        Args:
-            identity (Any): The resource identifier
+        Arguments:
+            identity: The resource identifier
 
         Returns:
-            AlchemyModel: Object that can be serialized to output for api
+            A model that can be serialized to output for api
 
         """
 
     @abc.abstractmethod
     def __contains__(self, identity: Any) -> bool:
-        """Checks if resource identified by identity eAny.
+        """Checks if resource identified by ``identity`` exists in storage.
 
-        Args:
-            identity (Any): The resource identifier
+        Arguments:
+            identity: The resource identifier
 
         Returns:
-            bool: Whether the resource exists
+            Whether the resource exists in storage
 
         """
 
@@ -103,14 +110,14 @@ class StorageABC(abc.ABC, Generic[AlchemyModel]):
 class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
     """SQLAlchemy model storage in sql database.
 
-    Args:
-        session (Session): The SQLAlchemy session to use for database operations
-        entity (Type[AlchemyModel]): The SQLAlchemy model to use for database operations
-        storage_schema (SQLAlchemySchema): The marshmallow schema to use for
+    Arguments:
+        session: The SQLAlchemy session to use for database operations
+        entity: The SQLAlchemy model to use for database operations
+        storage_schema: The marshmallow schema to use for
             serialization
-        primary_key (str|Sequence[str]): The primary key of the entity (Optional,
+        primary_key: The primary key of the entity (Optional,
             defaults to "slug")
-        statement_visitors (Optional[list[StatementVisitor]]): List of statement
+        statement_visitors: List of statement
             visitors to apply to all statements
 
     """
@@ -176,11 +183,17 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
             return model
         raise NotFoundError
 
-    def index(self, page_params=None, **kwargs) -> list[AlchemyModel]:
-        return DatabaseIndex.get(self, page_params, **kwargs)
+    def index(self, **kwargs) -> list[AlchemyModel]:
+        # Ignore type error because the return type will always be a list of
+        # Model instances
+        return DatabaseIndex.get(self, **kwargs)  # type: ignore[return-value]
 
+    @deprecated("Use count instead.")
     def count_index(self, **kwargs) -> int:
-        return DatabaseIndex.count_index(self, **kwargs)
+        return DatabaseIndex.count(self, **kwargs)
+
+    def count(self, **kwargs) -> int:
+        return DatabaseIndex.count(self, **kwargs)
 
     @_convert_identity
     def put(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:

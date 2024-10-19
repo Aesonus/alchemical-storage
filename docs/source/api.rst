@@ -8,6 +8,14 @@ Storage
     :members:
     :show-inheritance:
     :inherited-members:
+    :special-members: __contains__
+
+Storage Exceptions
+------------------
+
+.. automodule:: alchemical_storage.storage.exc
+    :members:
+    :show-inheritance:
 
 Visitor
 -------
@@ -29,6 +37,14 @@ Joins
 -----
 
 .. automodule:: alchemical_storage.join
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
+Pagination
+----------
+
+.. automodule:: alchemical_storage.pagination
     :members:
     :show-inheritance:
     :inherited-members:

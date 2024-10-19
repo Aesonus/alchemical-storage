@@ -13,8 +13,6 @@ from alchemical_storage.storage import DatabaseStorage
 from alchemical_storage.storage.exc import ConflictError, NotFoundError
 from tests import models
 
-# pylint: disable=too-many-public-methods, too-many-arguments, too-few-public-methods, missing-class-docstring, missing-function-docstring
-
 
 class TestDatabaseStorageWithSinglePk:
     """Test the database storage class."""
@@ -180,17 +178,6 @@ class TestDatabaseStorageWithSinglePk:
         actual = model_storage.index()
         assert actual == [existing_models[0], existing_models[1]]
 
-    def test_model_storage_index_returns_list_of_models_with_pagination(
-        self, model_storage: DatabaseStorage[models.Model], existing_models
-    ):
-        """Test that index returns list of models with pagination."""
-        assert (
-            model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
-        )
-        assert model_storage.index(page_params=models.PageParams(5, 1)) == [
-            existing_models[1]
-        ]
-
     def test_model_storage_index_returns_ordered_list_of_models(
         self, model_storage: DatabaseStorage[models.Model], existing_models
     ):
@@ -206,11 +193,11 @@ class TestDatabaseStorageWithSinglePk:
             ({"related_attr": 1}, 1),
         ],
     )
-    def test_model_storage_count_index_returns_count_of_models(
+    def test_model_storage_count_returns_count_of_models(
         self, model_storage: DatabaseStorage[models.Model], filters, expected_count
     ):
         """Test that count_index returns count of models."""
-        assert model_storage.count_index(**filters) == expected_count
+        assert model_storage.count(**filters) == expected_count
 
 
 class TestDatabaseStorageWithCompositePk:
@@ -359,17 +346,6 @@ class TestDatabaseStorageWithCompositePk:
             reversed(existing_models)
         )
 
-    def test_model_storage_index_returns_list_of_models_with_pagination(
-        self, model_storage: DatabaseStorage[models.CompositePkModel], existing_models
-    ):
-        """Test that index returns list of models with pagination."""
-        assert (
-            model_storage.index(page_params=models.PageParams(5, 0)) == existing_models
-        )
-        assert model_storage.index(page_params=models.PageParams(5, 1)) == [
-            existing_models[1]
-        ]
-
     @pytest.mark.parametrize(
         "filters, expected_count",
         [
@@ -378,11 +354,11 @@ class TestDatabaseStorageWithCompositePk:
             ({"attr3_like": "%test%"}, 2),
         ],
     )
-    def test_model_storage_count_index_returns_count_of_models(
+    def test_model_storage_count_returns_count_of_models(
         self,
         model_storage: DatabaseStorage[models.CompositePkModel],
         filters,
         expected_count,
     ):
         """Test that count_index returns count of models."""
-        assert model_storage.count_index(**filters) == expected_count
+        assert model_storage.count(**filters) == expected_count

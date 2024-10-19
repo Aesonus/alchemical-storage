@@ -6,15 +6,15 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-# pylint: disable=all
-
 import os
 import sys
+
+import alchemical_storage
 
 project = "Alchemical Storage"
 copyright = "2023, Cory Laughlin (Aesonus)"
 author = "Cory Laughlin (Aesonus)"
-release = "1.x"
+release = alchemical_storage.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -36,3 +36,13 @@ sys.path.insert(0, os.path.abspath("../.."))
 
 html_theme = "alabaster"
 html_static_path = ["_static"]
+html_theme_options = {
+    "fixed_sidebar": True,
+    "description": "A package to bridge CRUD operations with SQLAlchemy query constructs.",
+}
+
+# -- Options for napoleon ----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html#configuration
+
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
