@@ -152,7 +152,9 @@ class OrderByMap(StatementVisitor):
 
 
 class NullFilterMap(StatementVisitor):
-    """Applies a ``IS NULL`` or ``IS NOT NULL`` filter to an sqlalchemy statement.
+    """Maps :meth:`FilterMap.visit_statement<.FilterMap.visit_statement>` ``params``
+    argument dict keys to ``sqlalchemy.Select.where`` calls specifically for ``NULL`` or
+    ``NOT NULL`` filters.
 
     Arguments:
         filters: A dictionary of filters
