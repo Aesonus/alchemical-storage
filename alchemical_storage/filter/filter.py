@@ -57,16 +57,16 @@ class FilterMap(StatementVisitor):
             self.filters[filter_] = functools.partial(op_, get_by)
 
     def visit_statement(self, statement: T, params: dict[str, Any]):
-        """Apply filters to an sqlalchemy query. Each key in ``params`` corresponds to a
-        filter in ``self.filters``. If the key is not in ``self.filters``, it is
-        ignored.
+        """Apply filters to an ``sqlalchemy.Select`` instance. Each key in ``params``
+        corresponds to a filter configured in the constructor. If the ``params`` key is
+        not configured, it is ignored.
 
         Arguments:
-            statement: The sqlalchemy statement to apply filters to
-            params: The filters to apply
+            statement: The ``sqlalchemy.Select`` instance to apply ``where`` filters to
+            params: The filters and their parameters to apply
 
         Returns:
-            The filtered sqlalchemy statement
+            The new ``sqlalchemy.Select`` instance with the filters applied
 
         """
         return statement.where(*self._generate_whereclauses(params))
