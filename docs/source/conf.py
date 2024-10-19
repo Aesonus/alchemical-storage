@@ -40,3 +40,9 @@ html_theme_options = {
     "fixed_sidebar": True,
     "description": "A package to bridge CRUD operations with SQLAlchemy query constructs.",
 }
+
+# -- Options for napoleon ----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html#configuration
+
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
