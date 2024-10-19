@@ -1,5 +1,5 @@
-"""Build upon the ``alchemical_storage.visitor`` module to create a classes that can be
-used to map filters and order_by attributes to sqlalchemy statements."""
+"""Classes to add ``where`` and ``order_by`` clauses to ``sqlalchemy.Select`` instances
+in the ``DatabaseIndex.get`` method."""
 
 import functools
 import operator
