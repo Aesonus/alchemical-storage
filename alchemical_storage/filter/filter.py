@@ -80,7 +80,9 @@ class FilterMap(StatementVisitor):
 
 
 class OrderByMap(StatementVisitor):
-    """A mapper to convert order_by attributes to sqlalchemy order_by expressions.
+    """Maps the value of the
+    :meth:`FilterMap.visit_statement<.FilterMap.visit_statement>` ``params`` argument
+    ``order_by`` key to ``sqlalchemy.Select.order_by`` calls.
 
     Arguments:
         order_by_attributes (dict[str, Any]): A dictionary of order_by attributes, where
