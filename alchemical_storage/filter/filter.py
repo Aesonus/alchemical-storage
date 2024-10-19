@@ -202,6 +202,21 @@ class NullFilterMap(StatementVisitor):
             self.filters[filter_] = get_by
 
     def visit_statement(self, statement: T, params: dict[str, Any]) -> T:
+        """Apply filters to an ``sqlalchemy.Select`` instance. Each key in ``params``
+        corresponds to a filter configured in the constructor. If the ``params`` key is
+        not configured, it is ignored.
+
+        Arguments:
+            statement: The ``sqlalchemy.Select`` instance to apply ``where`` filters to
+            params: The filters and their parameters to apply
+
+        Returns:
+            The new ``sqlalchemy.Select`` instance with the filters applied
+
+        Raises:
+            NullFilterException: If an unknown filter value is encountered
+
+        """
         return statement.where(*self._generate_where_clauses(params))
 
     def _generate_where_clauses(self, given_filters: dict[str, Any]):
