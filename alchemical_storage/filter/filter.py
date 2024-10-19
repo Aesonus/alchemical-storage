@@ -67,11 +67,6 @@ class FilterMap(StatementVisitor):
         Returns:
             T: The filtered sqlalchemy statement
 
-        Note:
-            Type "T" is a generic type that can be either a ``sqlalchemy.sql.Select`` or
-            ``sqlalchemy.sql.ColumnElement``. This is because the visitor can be used
-            on both select statements and column elements.
-
         """
         return statement.where(*self._generate_whereclauses(params))
 
