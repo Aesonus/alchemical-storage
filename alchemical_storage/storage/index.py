@@ -12,16 +12,16 @@ EntityType = TypeVar("EntityType", bound=Any)  # pylint: disable=invalid-name
 
 
 class DatabaseIndex(Generic[EntityType]):
-    """Index of resources in a database.
+    """Gets or counts resources from a database.
 
     Arguments:
         session: The database session.
-        entity: The entity type.
-        count_key: The callable that receives the entity type and returns the count
-            key.
+        entity: The entity type. Usually a SQLAlchemy model or tuple of them.
+        count_key: The callable that receives the entity type and returns the column
+            to be used in the ``sqlalchemy.count`` function.
 
     Keyword Arguments:
-        statement_visitors: List of statement visitors.
+        statement_visitors: List of statement visitors. Defaults to an empty list.
 
     """
 
