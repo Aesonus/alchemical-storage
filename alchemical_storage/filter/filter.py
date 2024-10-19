@@ -66,7 +66,7 @@ class FilterMap(StatementVisitor):
             params: The filters to apply
 
         Returns:
-            T: The filtered sqlalchemy statement
+            The filtered sqlalchemy statement
 
         """
         return statement.where(*self._generate_whereclauses(params))
@@ -128,7 +128,7 @@ class OrderByMap(StatementVisitor):
             params: The filters to apply
 
         Returns:
-            T: The order_by sqlalchemy statement
+            The order_by sqlalchemy statement
 
         """
         if "order_by" not in params:
