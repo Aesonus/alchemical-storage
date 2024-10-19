@@ -173,6 +173,8 @@ This would translate to this in SQL:
 
 .. note:: The value of the filter that corresponds to null and not null can be set by passing a 2-tuple to the :class:`NullFilterMap <alchemical_storage.filter.NullFilterMap>` constructor using the ``null_identifiers`` keyword argument, where the first element is the value for null and the second element is the value for not null. Only string values are allowed.
 
+.. _UsingOrderByMap:
+
 Sorting Results
 ~~~~~~~~~~~~~~~
 

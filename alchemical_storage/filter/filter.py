@@ -98,6 +98,9 @@ class OrderByMap(StatementVisitor):
                 "player_on": 'Game.played_on',
             }, 'your_models_module.models')
 
+    See Also:
+        :ref:`Sorting Results <UsingOrderByMap>`
+
     """
 
     order_by_attributes: dict[str, Any]
