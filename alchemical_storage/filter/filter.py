@@ -119,16 +119,20 @@ class OrderByMap(StatementVisitor):
 
             self.order_by_attributes[attr] = order_by
 
-    def visit_statement(self, statement, params: dict[str, Any]):
-        """Apply order_by to an sqlalchemy query. Ignored if ``order_by`` key is not in
-        ``params``.
+    def visit_statement(self, statement: T, params: dict[str, Any]):
+        """Apply order_by criteria to a ``sqlalchemy.Select`` instance. Ignored if
+        ``order_by`` key is not in ``params`` keys.
 
         Arguments:
-            statement: The sqlalchemy statement to apply order_by to
-            params: The filters to apply
+            statement: The ``sqlalchemy.Select`` instance to apply ``order_by``
+                criteria to
+            params: The order_by criteria to apply
 
         Returns:
-            The order_by sqlalchemy statement
+            The new ``sqlalchemy.Select`` instance with the order_by criteria applied
+
+        Raises:
+            OrderByException: If an unknown order_by value is encountered
 
         """
         if "order_by" not in params:
