@@ -8,16 +8,16 @@ from alchemical_storage.visitor import StatementVisitor, T
 class PaginationMap(StatementVisitor):
     """Class for adding pagination to sqlalchemy queries.
 
-    Args:
-        param_name (str): The name of the parameter containing the pagination
+    Arguments:
+        param_name: The name of the parameter containing the pagination
             object.
-        page_size_attr (str): The attribute name for the page size within the
+        page_size_attr: The attribute name for the page size within the
             pagination object.
-        first_item_attr (str): The attribute name for the first item within the
+        first_item_attr: The attribute name for the first item within the
             pagination object.
 
-    Keyword Args:
-        getter_func (callable): The function to use to get the values from the
+    Keyword Arguments:
+        getter_func: The function to use to get the values from the
             pagination object. Defaults to ``getattr``.
 
     """
@@ -39,12 +39,12 @@ class PaginationMap(StatementVisitor):
         """Apply pagination to an sqlalchemy query. Ignored if ``param_name`` key is not
         in ``params``.
 
-        Args:
-            statement (T): The sqlalchemy statement to apply pagination to
-            params (dict[str, Any]): The filters to apply
+        Arguments:
+            statement: The sqlalchemy statement to apply pagination to
+            params: The filters to apply
 
         Returns:
-            T: The paginated sqlalchemy statement
+            The paginated sqlalchemy statement
 
         """
         if self._param_name not in params:

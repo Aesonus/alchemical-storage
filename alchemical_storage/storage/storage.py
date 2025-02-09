@@ -115,10 +115,11 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
         entity: The SQLAlchemy model to use for database operations
         storage_schema: The marshmallow schema to use for
             serialization
-        primary_key: The primary key of the entity (Optional,
-            defaults to "slug")
-        statement_visitors: List of statement
-            visitors to apply to all statements
+
+    Keyword Arguments:
+        primary_key: The primary key of the entity (defaults to "slug")
+        statement_visitors: List of statement visitors to apply to all statements (
+            defaults to [])
 
     """
 
@@ -171,6 +172,21 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
 
     @_convert_identity
     def get(self, identity: Any, **kwargs) -> AlchemyModel:
+        """Get an AlchemyModel instance based on the given identity from the database.
+
+        Arguments:
+            identity: The unique identifier of the model to retrieve.
+            **kwargs: Additional keyword arguments that may be used by statement
+                visitors.
+
+        Returns:
+            The retrieved model instance. Adding this temporarily as a test to make sure
+            the text wraps.
+
+        Raises:
+            NotFoundError: If no model instance matching the identity is found.
+
+        """
         stmt = sql.select(self.entity).where(
             *(
                 getattr(self.entity, _attr) == id
@@ -184,6 +200,15 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
         raise NotFoundError
 
     def index(self, **kwargs) -> list[AlchemyModel]:
+        """Get a list of AlchemyModel instances from the database.
+
+        Arguments:
+            **kwargs: Arbitrary keyword arguments used to manipulate the results.
+
+        Returns:
+            A list of AlchemyModel instances.
+
+        """
         # Ignore type error because the return type will always be a list of
         # Model instances
         return DatabaseIndex.get(self, **kwargs)  # type: ignore[return-value]
@@ -193,10 +218,37 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
         return DatabaseIndex.count(self, **kwargs)
 
     def count(self, **kwargs) -> int:
+        """Count the number of rows in the database.
+
+        Arguments:
+            **kwargs: Arbitrary keyword arguments used to manipulate the count result.
+
+        Returns:
+            The number of rows in the database.
+
+        """
         return DatabaseIndex.count(self, **kwargs)
 
     @_convert_identity
     def put(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
+        """Inserts a new row into the database with the given `identity`.
+
+        Arguments:
+            identity: The unique identifier for the new record.
+            data: A dictionary containing the data to be stored.
+
+        Returns:
+            The newly created and stored model instance.
+
+        Raises:
+            ConflictError: If a record with the given identity already exists in the
+                storage.
+
+        Note:
+            You still must persist the changes to the database by calling
+            ``session.commit()`` or equivalent.
+
+        """
         if identity in self:
             raise ConflictError
         data = {**data, **dict(zip(self._attr, identity))}
@@ -207,6 +259,26 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
 
     @_convert_identity
     def patch(self, identity: Any, data: dict[str, Any]) -> AlchemyModel:
+        """Partially updates an existing record identified by `identity` with the
+        provided `data`.
+
+        Arguments:
+            identity: The unique identifier of the record to be updated.
+            data: A dictionary containing the fields to be updated and
+                their new values.
+
+        Returns:
+            The updated model instance.
+
+        Raises:
+            NotFoundError: If the record identified by `identity` does not exist in the
+            storage.
+
+        Note:
+            You still must persist the changes to the database by calling
+            ``session.commit()`` or equivalent.
+
+        """
         if not identity in self:
             raise NotFoundError
         self.storage_schema.load(data, partial=True, instance=self.get(identity))
@@ -215,6 +287,19 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
 
     @_convert_identity
     def delete(self, identity: Any) -> AlchemyModel:
+        """Delete a row from the database.
+
+        Arguments:
+            identity: The unique identifier of the model to be deleted.
+
+        Returns:
+            The deleted model instance.
+
+        Raises:
+            NotFoundError: If the model with the given identity is not found in the
+            storage.
+
+        """
         if not identity in self:
             raise NotFoundError
         model = self.get(identity)
@@ -223,6 +308,15 @@ class DatabaseStorage(StorageABC, DatabaseIndex, Generic[AlchemyModel]):
 
     @_convert_identity
     def __contains__(self, identity: Any) -> bool:
+        """Check if a row with the given identity exists in the database.
+
+        Arguments:
+            identity: The unique identifier of the row to check for.
+
+        Returns:
+            True if the row exists, False otherwise.
+
+        """
         if result := self.session.execute(
             sql.select(sql.func.count(getattr(self.entity, self._attr[0]))).where(
                 *(

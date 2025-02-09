@@ -15,7 +15,7 @@ class StatementVisitor(abc.ABC):
     def visit_statement(self, statement: T, params: dict[str, Any]) -> T:
         """Visit a statement.
 
-        Args:
+        Arguments:
             statement: The statement to visit
             params: The parameters passed by the
                 :class:`alchemical_storage.storage.DatabaseStorage` when this method is

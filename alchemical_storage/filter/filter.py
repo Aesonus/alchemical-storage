@@ -1,5 +1,5 @@
-"""Classes to add ``where`` and ``order_by`` clauses to ``sqlalchemy.Select`` instances
-in the ``DatabaseIndex.get`` method."""
+"""Classes to add ``where`` and ``order_by`` clauses to ``sqlalchemy.Select``
+instances."""
 
 import functools
 import operator
@@ -26,11 +26,20 @@ class FilterMap(StatementVisitor):
     Example:
         .. code-block:: python
 
-            filter_visitor = FilterMap({
-                "game_type": 'Game.type',
-                "starting_at": ('Game.played_on', operator.ge,),
-                "ending_at": ('Game.played_on', operator.le,),
-            }, 'your_models_module.models')
+            filter_visitor = FilterMap(
+                {
+                    "game_type": "Game.type",
+                    "starting_at": (
+                        "Game.played_on",
+                        operator.ge,
+                    ),
+                    "ending_at": (
+                        "Game.played_on",
+                        operator.le,
+                    ),
+                },
+                "your_models_module.models",
+            )
 
     See Also:
         :ref:`Using Filters > FilterMap <UsingFilterMap>`
@@ -85,18 +94,20 @@ class OrderByMap(StatementVisitor):
     ``order_by`` key to ``sqlalchemy.Select.order_by`` calls.
 
     Arguments:
-        order_by_attributes: A dictionary of order_by attributes, where
-            the key is the attribute name and the value is the column or label to order
-            by.
+        order_by_attributes: A dictionary of order_by attributes, where the key is the
+            attribute name and the value is the column or label to order by.
         import_from: The module to import Model classes from
 
     Example:
         .. code-block:: python
 
-            order_by_visitor = OrderByMap({
-                "game_type": 'Game.type',
-                "player_on": 'Game.played_on',
-            }, 'your_models_module.models')
+            order_by_visitor = OrderByMap(
+                {
+                    "game_type": "Game.type",
+                    "player_on": "Game.played_on",
+                },
+                "your_models_module.models",
+            )
 
     See Also:
         :ref:`Sorting Results <UsingOrderByMap>`
@@ -124,8 +135,8 @@ class OrderByMap(StatementVisitor):
         ``order_by`` key is not in ``params`` keys.
 
         Arguments:
-            statement: The ``sqlalchemy.Select`` instance to apply ``order_by``
-                criteria to
+            statement: The ``sqlalchemy.Select`` instance to apply ``order_by`` criteria
+                to
             params: The order_by criteria to apply
 
         Returns:
@@ -165,15 +176,15 @@ class NullFilterMap(StatementVisitor):
         import_from: The module to import Model classes from
 
     Keyword Arguments:
-        null_identifiers: The identifiers for null and not null.
-            Defaults to ``("null", "not-null")``.
+        null_identifiers: The identifiers for null and not null. Defaults to ``("null",
+            "not-null")``.
 
     Example:
         .. code-block:: python
 
-            null_filter_visitor = NullFilterMap({
-                "deleted_at": 'Game.deleted_at',
-            }, 'your_models_module.models')
+            null_filter_visitor = NullFilterMap(
+                {"deleted_at": "Game.deleted_at"}, "your_models_module.models"
+            )
 
     See Also:
         :ref:`Usage Guide for NullFilterMap <UsingNullFilterMap>`
