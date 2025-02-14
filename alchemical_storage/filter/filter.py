@@ -163,7 +163,7 @@ class OrderByMap(StatementVisitor):
                 else:
                     yield self.order_by_attributes[attr]
             else:
-                raise OrderByException(f"Unknown order_by attribute: {attr}")
+                raise OrderByException(f"Unknown order_by value: {attr}")
 
 
 class NullFilterMap(StatementVisitor):
