@@ -193,7 +193,7 @@ class TestOrderByMap:
             import_from,
         )
         with pytest.raises(
-            OrderByException, match="^(Unknown order_by attribute: invalid_param)$"
+            OrderByException, match="^(Unknown order_by value: invalid_param)$"
         ):
             order_by_instance.visit_statement(
                 mock_sql_statement, {"order_by": "order_by_name,invalid_param"}
