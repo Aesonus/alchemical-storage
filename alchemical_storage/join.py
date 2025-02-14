@@ -1,8 +1,9 @@
 """Classes for adding joins to sqlalchemy queries."""
 
-import importlib
+from types import ModuleType
 from typing import Any
 
+from alchemical_storage import get_module
 from alchemical_storage.visitor import StatementVisitor, T
 
 JoinExpression = str | tuple[Any, ...]
@@ -11,12 +12,12 @@ JoinExpression = str | tuple[Any, ...]
 class JoinMap(StatementVisitor):
     """Class for adding joins to sqlalchemy queries.
 
-    Args:
-        import_from (str): The module to import the models/entities from.
-        param_names (tuple[str, ...]): The names of the parameters that will trigger
+    Arguments:
+        import_from: The module to import the models/entities from.
+        param_names: The names of the parameters that will trigger
             the join. Any of these parameters being in the ``params`` dict passed to
             ``visit_statement`` will trigger the join.
-        *joins (str | tuple[Any, ...]): The joins to add to the query.
+        *joins: The joins to add to the query.
 
     Example:
         .. code-block:: python
@@ -34,11 +35,11 @@ class JoinMap(StatementVisitor):
 
     def __init__(
         self,
-        import_from: str,
+        import_from: str | ModuleType,
         param_names: tuple[str, ...],
         *joins: JoinExpression,
     ):
-        self.__module = importlib.import_module(import_from)
+        self.__module = get_module(import_from)
         self.param_names = param_names
         _joins = []
         for join in joins:

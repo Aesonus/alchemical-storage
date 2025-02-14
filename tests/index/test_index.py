@@ -96,17 +96,6 @@ class TestEntityIsModel:
         actual = database_index.get()
         assert actual == [existing_models[0], existing_models[1]]
 
-    def test_database_index_get_returns_list_of_models_with_pagination(
-        self, database_index: DatabaseIndex[models.Model], existing_models
-    ):
-        """Test that index returns list of models with pagination."""
-        assert (
-            database_index.get(page_params=models.PageParams(5, 0)) == existing_models
-        )
-        assert database_index.get(page_params=models.PageParams(5, 1)) == [
-            existing_models[1]
-        ]
-
     def test_database_index_get_returns_ordered_list_of_models(
         self, database_index: DatabaseIndex[models.Model], existing_models
     ):
@@ -125,7 +114,7 @@ class TestEntityIsModel:
         self, database_index: DatabaseIndex[models.Model], filters, expected_count
     ):
         # I know entity is not a tuple, so I don't need to test for that in the key.
-        assert database_index.count_index(**filters) == expected_count
+        assert database_index.count(**filters) == expected_count
 
 
 class TestEntityIsTupleOfColumns:
@@ -172,27 +161,6 @@ class TestEntityIsTupleOfColumns:
             for existing_model in existing_models[0:2]
         ]
 
-    def test_database_index_get_returns_list_of_models_with_pagination(
-        self, database_index: DatabaseIndex[models.Model], existing_models
-    ):
-        """Test that index returns list of models with pagination."""
-        assert database_index.get(page_params=models.PageParams(5, 0)) == [
-            (
-                existing_model.attr,
-                existing_model.attr2,
-                existing_model.attr3,
-            )
-            for existing_model in existing_models
-        ]
-
-        assert database_index.get(page_params=models.PageParams(5, 1)) == [
-            (
-                existing_models[1].attr,
-                existing_models[1].attr2,
-                existing_models[1].attr3,
-            )
-        ]
-
     def test_database_index_get_returns_ordered_list_of_models(
         self, database_index: DatabaseIndex[models.Model], existing_models
     ):
@@ -217,4 +185,4 @@ class TestEntityIsTupleOfColumns:
     def test_database_index_count_returns_count_of_models(
         self, database_index: DatabaseIndex[models.Model], filters, expected_count
     ):
-        assert database_index.count_index(**filters) == expected_count
+        assert database_index.count(**filters) == expected_count

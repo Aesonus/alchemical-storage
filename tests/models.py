@@ -3,8 +3,6 @@
 import sqlalchemy as sqla
 from sqlalchemy import orm
 
-# pylint: disable=too-few-public-methods
-
 
 class Base(orm.DeclarativeBase):
     """Base class for all models."""
